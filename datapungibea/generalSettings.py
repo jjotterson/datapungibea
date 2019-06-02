@@ -40,19 +40,19 @@ def getBaseRequest(connectionParameters={},userSettings={}):
       translate the connection parameters, a flat dictionary, to the format used by 
       requests (or other connector), also, translate names to ones used by the datasource.        
     '''   
-     if userSettings == {}:
-         userSettings = dict(ResultFormat = 'JSON')
-         print("result format was set to JSON since none could be found or was passed as a 'ResultFormat' in userSettings")
-     
-     output = { #this is, for example, the base of a requests' request - the drivers add to this.
-        'url' : connectionParameters['url'],
-        'params' :{
-          'UserID' : connectionParameters['key'],
-          'ResultFormat': userSettings["ResultFormat"]
-        }
-     }
-     
-     return(output)
+    if userSettings == {}:
+        userSettings = dict(ResultFormat = 'JSON')
+        print("result format was set to JSON since none could be found or was passed as a 'ResultFormat' in userSettings")
+    
+    output = { #this is, for example, the base of a requests' request - the drivers add to this.
+       'url' : connectionParameters['url'],
+       'params' :{
+         'UserID' : connectionParameters['key'],
+         'ResultFormat': userSettings["ResultFormat"]
+       }
+    }
+    
+    return(output)
 
 def getDatasourceOverview():
     output = '''
