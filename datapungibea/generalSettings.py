@@ -117,11 +117,7 @@ def getPackageMetadata():
 
 '''
 
-                {
-                 "displayName":"List of Datasets",
-                 "method"     :"datasetlist",   #NOTE run with getattr(data,'datasetlist')()
-                 "params"     :{},
-                },
+
                 {
                  "displayName":"NIPA",
                  "method"     :"NIPA",   #NOTE run with getattr(data,'datasetlist')()

@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-from datapungibea import utils as cfgf
 from . import generalSettings 
 from . import drivers
 
@@ -8,7 +7,7 @@ from . import drivers
 #      easy for user access)
 # only initialize a driver if it's being called
 
-class Delegator(object):
+class delegator(object):
     def __getattr__(self, called_method):
         def __raise_standard_exception():
             raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, called_method))
@@ -31,7 +30,7 @@ class Delegator(object):
         return(wrapper)
 
 
-class data(Delegator):
+class data(delegator):
     DELEGATED_METHODS = {
         'getNIPA':          ['NIPA'],
         'getDatasetlist':   ['datasetlist']
@@ -46,9 +45,10 @@ class data(Delegator):
         '''
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
         #load drivers:
-        self.getDatasetlist = getDatasetlist(self.__connectInfo.baseRequest)
-        self.getNIPA        = 
-  
+        self.getDatasetlist = drivers.getDatasetlist(self.__connectInfo.baseRequest)
+        self.getNIPA        = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
+        #TODO: improve loading the drivers 
+        
 
 
 
