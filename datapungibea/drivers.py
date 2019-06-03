@@ -4,6 +4,8 @@ import json
 import pyperclip
 from datapungibea import generalSettings 
 
+
+# (1) Auxiliary functions ######################################################
 def _getBaseRequest(baseRequest={},connectionParameters={},userSettings={}):
     '''
       Write a base request.  Could have other such functions, one for each type of base request.
@@ -23,13 +25,13 @@ import requests
 import json    
 
 #(1) get user API key (not advised but can just write key and url in the file)
-#    file should contain: {{"BEA":{{"key":"YOUR KEY","url":"https://apps.bea.gov/api/data/"}}}}
+#    file should contain: {{"BEA":{{"key":"YOUR KEY","url": "{}" }}}}
 
 apiKeysFile = "{}"
 with open(apiKeysFile) as jsonFile:
    apiInfo = json.load(jsonFile)
    url,key = apiInfo["BEA"]["url"], apiInfo["BEA"]["key"]    
-     '''.format(codeEntries)
+     '''.format(*codeEntries)
     return(code)
 
 def _clipcode(self):
@@ -38,11 +40,12 @@ def _clipcode(self):
     except:
         print("Loaded session does not have a code entry.  Re-run with verbose option set to True. eg: v.drivername(...,verbose=True)")
 
+# (2) Drivers ###################################################################
 class getDatasetlist():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings)
-        self._lastLoad       = {}  #data stored here to asist other function as clipboard
+        self._lastLoad       = {}  #data stored here to assist functions such as clipcode
     
     def datasetlist(self,verbose=False):
         query = self._baseRequest
@@ -72,11 +75,13 @@ class getDatasetlist():
     def _getCode(self,query):
         #general code to all drivers:
         try:
+            url        = query['url']
             apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
         except:
-            apiKeyPath = " unavailable "
+            ur         = " incomplete connection information "
+            apiKeyPath = " incomplete connection information "
 
-        baseCode = _getBaseCode(*[apiKeyPath])
+        baseCode = _getBaseCode([url,apiKeyPath])
         
         #specific code to this driver:
         queryClean = query
@@ -87,6 +92,8 @@ class getDatasetlist():
         queryCode = '''
 query = {}
 retrivedData = requests.get(**query)
+
+dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
         '''.format(json.dumps(queryClean))
         
         queryCode = queryCode.replace('"url": "url"', '"url": url')

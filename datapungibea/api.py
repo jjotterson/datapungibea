@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
-from . import generalSettings 
-from . import drivers
+from datapungibea import generalSettings 
+from datapungibea import drivers
 
 #TODO: improve delegation (want name of methods - getDatasetlis - to be _get... or be all in a loadedDrivers class etc.  These shouldn't be 
 #      easy for user access)
@@ -44,6 +44,7 @@ class data(delegator):
           :param userSettings: settings saved in the packge pointing to a json containing the connection parameters 
         '''
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
+        self._metadata = self.__connectInfo.packageMetadata
         #load drivers:
         self.getDatasetlist = drivers.getDatasetlist(self.__connectInfo.baseRequest)
         self.getNIPA        = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
