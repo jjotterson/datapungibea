@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+import pyperclip
 from datapungibea import generalSettings 
 
 def _getBaseRequest(baseRequest={},connectionParameters={},userSettings={}):
@@ -13,28 +14,36 @@ def _getBaseRequest(baseRequest={},connectionParameters={},userSettings={}):
     else:
        return(baseRequest)
 
-def _getBaseCode(codeEntries = []):
+def _getBaseCode(codeEntries): 
+    '''
+      eg: start with an array vEntries, _getBaseCode(*vEntries)
+    '''
     code = '''
-              import requests
-              import json    
-              
-              #(1) get user API key (not advised but can just write key and url in the file)
-              #    file should contain: {{"BEA":{{"key":"YOUR KEY","address":"https://apps.bea.gov/api/data/"}}}}
-              
-              apiKeysFile = "{}"
-              with open(apiKeysFile) as jsonFile:
-                 apiInfo = json.load(jsonFile)
-                 url,key = apiInfo["BEA"]["url"], apiInfo["BEA"]["key"]    
+import requests
+import json    
 
-            '''.format(codeEntries)
+#(1) get user API key (not advised but can just write key and url in the file)
+#    file should contain: {{"BEA":{{"key":"YOUR KEY","url":"https://apps.bea.gov/api/data/"}}}}
+
+apiKeysFile = "{}"
+with open(apiKeysFile) as jsonFile:
+   apiInfo = json.load(jsonFile)
+   url,key = apiInfo["BEA"]["url"], apiInfo["BEA"]["key"]    
+     '''.format(codeEntries)
     return(code)
+
+def _clipcode(self):
+    try:
+        pyperclip.copy(self._lastLoad['code'])
+    except:
+        print("Loaded session does not have a code entry.  Re-run with verbose option set to True. eg: v.drivername(...,verbose=True)")
 
 class getDatasetlist():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
-        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings)
-        self._lastLoad    = {}  #data stored here to asist other function as clipboard
-
+        self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings)
+        self._lastLoad       = {}  #data stored here to asist other function as clipboard
+    
     def datasetlist(self,verbose=False):
         query = self._baseRequest
         query['params'].update({'method':'GETDATASETLIST'})
@@ -67,7 +76,7 @@ class getDatasetlist():
         except:
             apiKeyPath = " unavailable "
 
-        baseCode = _getBaseCode([apiKeyPath])
+        baseCode = _getBaseCode(*[apiKeyPath])
         
         #specific code to this driver:
         queryClean = query
@@ -76,13 +85,17 @@ class getDatasetlist():
         
         
         queryCode = '''
-              query = {}
-              retrivedData = requests.get(**query)'''.format(json.dumps(queryClean))
+query = {}
+retrivedData = requests.get(**query)
+        '''.format(json.dumps(queryClean))
         
         queryCode = queryCode.replace('"url": "url"', '"url": url')
         queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
         
         return(baseCode + queryCode)
+    
+    def clipcode(self):
+        _clipcode(self)
 
     def _driverMetadata(self):
         self.metadata =     [{
@@ -90,6 +103,8 @@ class getDatasetlist():
             "method"     :"datasetlist",   #Name of driver main function - run with getattr(data,'datasetlist')()
             "params"     :{},
         }]
+
+
 class getNIPA():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
@@ -154,3 +169,4 @@ if __name__ == '__main__':
     from datapungibea.drivers import getDatasetlist
     v = getDatasetlist()
     v.datasetlist(verbose=True)
+    print(v._lastLoad['code'])
