@@ -45,6 +45,7 @@ class data(delegator):
         '''
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
         self._metadata = self.__connectInfo.packageMetadata
+        self._help     = self.__connectInfo.datasourceOverview
         #load drivers:
         self.getDatasetlist = drivers.getDatasetlist(self.__connectInfo.baseRequest)
         self.getNIPA        = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
