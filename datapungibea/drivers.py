@@ -122,10 +122,12 @@ class getNIPA():
     
     def NIPA(self,
         tableName,
-        frequency = 'Q',
-        payload={'method': 'GETDATA', 'DATABASENAME': 'NIPA', 'datasetname': 'NIPA', 'Year': 'X', 'ParameterName': 'TableID'},
-        outputFormat="tablePretty",
-        tryFrequencies=False
+        frequency      = 'Q',
+        year           = 'X',
+        payload        = {'method': 'GETDATA', 'DATABASENAME': 'NIPA', 'datasetname': 'NIPA', 'ParameterName': 'TableID'},
+        tryFrequencies = False,  #TODO: remove
+        outputFormat   = "tablePretty",
+        verbose        = False
     ):
         '''
             User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
@@ -141,39 +143,88 @@ class getNIPA():
         query = self._baseRequest
         query['params'].update({'TABLENAME': tableName})
         query['params'].update({'FREQUENCY':frequency})
+        query['params'].update({'YEAR':year})
         query['params'].update(payload)
         
         # TODO: try loading different frenquencies if no return
         #
-        nipa = requests.get(**query)
+        retrivedData = requests.get(**query)
         
-        # output format
-        if outputFormat == "table":
-            # TODO: check if xml or json
-            self._lastLoad = pd.DataFrame(nipa.json()['BEAAPI']['Results']['Data'])
-            return(self._lastLoad )
-        elif outputFormat == "tablePretty":
-            table = pd.DataFrame(nipa.json()['BEAAPI']['Results']['Data'])
-            table['LineNumber'] = pd.to_numeric(table['LineNumber'])
-            table['DataValue'] = pd.to_numeric(table['DataValue'])
+        output         = self._cleanOutput(query,retrivedData,outputFormat) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == True:
+           output['code']    = self._getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData, outputFormat):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+        
+        if outputFormat == "tablePretty":
+            df_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])
+            df_output['DataValue'] = pd.to_numeric(df_output['DataValue'])
             
-            meta = table.drop(['DataValue', 'TimePeriod'], axis=1).drop_duplicates()
+            meta = df_output.drop(['DataValue', 'TimePeriod'], axis=1).drop_duplicates()
             meta = meta.set_index(['LineNumber', 'SeriesCode', 'LineDescription']).reset_index()
             
-            table = table[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]
-            table = pd.pivot_table(table, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
-            self._lastLoad = {'metadata': meta, 'table': table}
-            return(self._lastLoad)
-        else:
-            self._lastLoad = nipa
-            return(self._lastLoad)
+            df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]
+            df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
+            
+            output = {'dataFrame':df_output,'metadata':meta}
+            
+        return(output)
+    
+    def _getCode(self,query):
+        #general code to all drivers:
+        try:
+            url        = query['url']
+            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
+        except:
+            ur         = " incomplete connection information "
+            apiKeyPath = " incomplete connection information "
+
+        baseCode = _getBaseCode([url,apiKeyPath])
+        
+        #specific code to this driver:
+        queryClean = query
+        queryClean['url'] = 'url'
+        queryClean['params']['UserID'] = 'key'
+        
+        
+        queryCode = '''
+query = {}
+retrivedData = requests.get(**query)
+
+dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
+        '''.format(json.dumps(queryClean))
+        
+        queryCode = queryCode.replace('"url": "url"', '"url": url')
+        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
+        
+        return(baseCode + queryCode)
+    
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"List of Datasets",
+            "method"     :"datasetlist",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
 
 
 if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA
     #v = getNIPA()
     #v.NIPA('T10101')
-    from datapungibea.drivers import getDatasetlist
-    v = getDatasetlist()
-    v.datasetlist(verbose=True)
-    print(v._lastLoad['code'])
+    from datapungibea.drivers import getNIPA #getDatasetlist
+    v = getNIPA() #getDatasetlist()
+    print(v.NIPA('T10101',verbose=True))
+    #print(v._lastLoad['code'])
