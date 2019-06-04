@@ -1,4 +1,4 @@
 #__all__ = ['api']
 
-from datapungibea.api import data
+from datapungibea.api import *
 

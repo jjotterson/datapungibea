@@ -47,7 +47,7 @@ class getDatasetlist():
         self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings)
         self._lastLoad       = {}  #data stored here to assist functions such as clipcode
     
-    def datasetlist(self,verbose=False):
+    def datasetlist(self,params = {},verbose=False):
         query = self._baseRequest
         query['params'].update({'method':'GETDATASETLIST'})
         
