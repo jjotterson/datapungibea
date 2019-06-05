@@ -183,36 +183,7 @@ class getNIPA():
             output = {'dataFrame':df_output,'metadata':meta}
             
         return(output)
-    
-    def _getCode(self,query):
-        #general code to all drivers:
-        try:
-            url        = query['url']
-            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
-        except:
-            url         = " incomplete connection information "
-            apiKeyPath = " incomplete connection information "
-
-        baseCode = _getBaseCode([url,apiKeyPath])
-        
-        #specific code to this driver:
-        queryClean = query
-        queryClean['url'] = 'url'
-        queryClean['params']['UserID'] = 'key'
-        
-        
-        queryCode = '''
-query = {}
-retrivedData = requests.get(**query)
-
-dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
-        '''.format(json.dumps(queryClean))
-        
-        queryCode = queryCode.replace('"url": "url"', '"url": url')
-        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
-        
-        return(baseCode + queryCode)
-    
+     
     def clipcode(self):
         _clipcode(self)
     
@@ -273,36 +244,7 @@ class getGetParameterList():
         output = {'dataFrame':df_output}
                     
         return(output)
-    
-    def _getCode(self,query):
-        #general code to all drivers:
-        try:
-            url        = query['url']
-            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
-        except:
-            url         = " incomplete connection information "
-            apiKeyPath = " incomplete connection information "
-
-        baseCode = _getBaseCode([url,apiKeyPath])
-        
-        #specific code to this driver:
-        queryClean = query
-        queryClean['url'] = 'url'
-        queryClean['params']['UserID'] = 'key'
-        
-        
-        queryCode = '''
-query = {}
-retrivedData = requests.get(**query)
-
-dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
-        '''.format(json.dumps(queryClean))
-        
-        queryCode = queryCode.replace('"url": "url"', '"url": url')
-        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
-        
-        return(baseCode + queryCode)
-    
+      
     def clipcode(self):
         _clipcode(self)
     
@@ -350,7 +292,7 @@ class getGetParameterValues():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = self._getCode(query)
+           output['code']    = _getCode(query)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
@@ -364,35 +306,6 @@ class getGetParameterValues():
         output = {'dataFrame':df_output}
                     
         return(output)
-    
-    def _getCode(self,query):
-        #general code to all drivers:
-        try:
-            url        = query['url']
-            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
-        except:
-            url         = " incomplete connection information "
-            apiKeyPath = " incomplete connection information "
-
-        baseCode = _getBaseCode([url,apiKeyPath])
-        
-        #specific code to this driver:
-        queryClean = query
-        queryClean['url'] = 'url'
-        queryClean['params']['UserID'] = 'key'
-        
-        
-        queryCode = '''
-query = {}
-retrivedData = requests.get(**query)
-
-dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
-        '''.format(json.dumps(queryClean))
-        
-        queryCode = queryCode.replace('"url": "url"', '"url": url')
-        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
-        
-        return(baseCode + queryCode)
     
     def clipcode(self):
         _clipcode(self)

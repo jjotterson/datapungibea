@@ -111,7 +111,7 @@ def getPackageMetadata():
             {
              "displayName":"Parameter Values",
              "method"     :"getParameterValues",   #NOTE run with getattr(data,'datasetlist')()
-             "params"     :{'datasetname':'NIPA','parameterName':'TableID'}, #Parameters and default options.
+             "params"     :{'datasetName':'NIPA','parameterName':'TableID'}, #Parameters and default options.
             },
             {
              "displayName":"NIPA",
