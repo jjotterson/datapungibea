@@ -186,7 +186,7 @@ class getNIPA():
             url        = query['url']
             apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
         except:
-            ur         = " incomplete connection information "
+            url         = " incomplete connection information "
             apiKeyPath = " incomplete connection information "
 
         baseCode = _getBaseCode([url,apiKeyPath])
@@ -220,11 +220,200 @@ dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )
         }]
 
 
+class getGetParameterList():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def getParameterList(self,
+        datasetname,
+        payload        = {'method': 'GetParameterList'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'datasetname':datasetname})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = self._getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+    
+    def _getCode(self,query):
+        #general code to all drivers:
+        try:
+            url        = query['url']
+            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
+        except:
+            url         = " incomplete connection information "
+            apiKeyPath = " incomplete connection information "
+
+        baseCode = _getBaseCode([url,apiKeyPath])
+        
+        #specific code to this driver:
+        queryClean = query
+        queryClean['url'] = 'url'
+        queryClean['params']['UserID'] = 'key'
+        
+        
+        queryCode = '''
+query = {}
+retrivedData = requests.get(**query)
+
+dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
+        '''.format(json.dumps(queryClean))
+        
+        queryCode = queryCode.replace('"url": "url"', '"url": url')
+        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
+        
+        return(baseCode + queryCode)
+    
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+class getGetParameterValues():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def getParameterValues(self,
+        datasetName,
+        parameterName,         
+        payload        = {'method': 'getParameterValues'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'datasetname':datasetName})
+        query['params'].update({'parameterName':parameterName})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = self._getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+    
+    def _getCode(self,query):
+        #general code to all drivers:
+        try:
+            url        = query['url']
+            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
+        except:
+            url         = " incomplete connection information "
+            apiKeyPath = " incomplete connection information "
+
+        baseCode = _getBaseCode([url,apiKeyPath])
+        
+        #specific code to this driver:
+        queryClean = query
+        queryClean['url'] = 'url'
+        queryClean['params']['UserID'] = 'key'
+        
+        
+        queryCode = '''
+query = {}
+retrivedData = requests.get(**query)
+
+dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
+        '''.format(json.dumps(queryClean))
+        
+        queryCode = queryCode.replace('"url": "url"', '"url": url')
+        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
+        
+        return(baseCode + queryCode)
+    
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
 if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA
     #v = getNIPA()
     #v.NIPA('T10101')
-    from datapungibea.drivers import getNIPA #getDatasetlist
-    v = getNIPA() #getDatasetlist()
-    print(v.NIPA('T10101',verbose=True))
-    #print(v._lastLoad['code'])
+    
+    #from datapungibea.drivers import getNIPA #getDatasetlist
+    #v = getNIPA() #getDatasetlist()
+    #print(v.NIPA('T10101',verbose=True))
+    ##print(v._lastLoad['code'])
+
+    from datapungibea.drivers import getGetParameterList #getDatasetlist
+    v = getGetParameterList()
+    print(v.getParameterList('NIPA',verbose = True)['code'])
+
+    from datapungibea.drivers import getGetParameterValues #getDatasetlist
+    v = getGetParameterValues()
+    print(v.getParameterValues('NIPA','TableID'))

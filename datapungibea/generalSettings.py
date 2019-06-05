@@ -108,6 +108,16 @@ def getPackageMetadata():
              "method"     :"NIPA",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{'tableName':'T10101','year':'X','frequency':'Q'}, #Parameters and default options.
             },
+            {
+             "displayName":"Parameter List",
+             "method"     :"getParameterList",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{'datasetename':'NIPA'}, #Parameters and default options.
+            },
+            {
+             "displayName":"Parameter Values",
+             "method"     :"getParameterValues",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{'datasetename':'NIPA','parameterName':'TableID'}, #Parameters and default options.
+            },
             ],
      }  
     
