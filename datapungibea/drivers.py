@@ -152,7 +152,10 @@ class getNIPA():
         
         output         = self._cleanOutput(query,retrivedData,outputFormat) #a dict of a df or df and meta (tablePretty)
         
-        if verbose == True:
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(self._lastLoad)
+        else:
            output['code']    = self._getCode(query)
            output['request'] = retrivedData
            self._lastLoad = output
