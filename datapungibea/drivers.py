@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+from copy import deepcopy
 import pyperclip
 from datapungibea import generalSettings 
 
@@ -34,6 +35,35 @@ with open(apiKeysFile) as jsonFile:
      '''.format(*codeEntries)
     return(code)
 
+def _getCode(query):
+    #general code to all drivers:
+    try:
+        url        = query['url']
+        apiKeyPath = 'hi' #self._connectionInfo.userSettings["ApiKeysPath"]
+    except:
+        url         = " incomplete connection information "
+        apiKeyPath = " incomplete connection information "
+    
+    baseCode = _getBaseCode([url,apiKeyPath])
+    
+    #specific code to this driver:
+    queryClean = deepcopy(query)
+    queryClean['url'] = 'url'
+    queryClean['params']['UserID'] = 'key'
+    
+    
+    queryCode = '''
+query = {}
+retrivedData = requests.get(**query)
+
+dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
+    '''.format(json.dumps(queryClean))
+    
+    queryCode = queryCode.replace('"url": "url"', '"url": url')
+    queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
+    
+    return(baseCode + queryCode)
+
 def _clipcode(self):
     try:
         pyperclip.copy(self._lastLoad['code'])
@@ -59,7 +89,7 @@ class getDatasetlist():
             self._lastLoad = df_output
             return(df_output)
         else:
-            code = self._getCode(query)
+            code = _getCode(query)
             output = dict(dataFrame = df_output, request = retrivedData, code = code)  
             self._lastLoad = output
             return(output)  
@@ -71,39 +101,10 @@ class getDatasetlist():
             df_output =  pd.DataFrame( retrivedData.xml()['BEAAPI']['Results']['Dataset'] )  #TODO: check this works
     
         return(df_output)
-
-    def _getCode(self,query):
-        #general code to all drivers:
-        try:
-            url        = query['url']
-            apiKeyPath = self._connectionInfo.userSettings["ApiKeysPath"]
-        except:
-            ur         = " incomplete connection information "
-            apiKeyPath = " incomplete connection information "
-
-        baseCode = _getBaseCode([url,apiKeyPath])
         
-        #specific code to this driver:
-        queryClean = query
-        queryClean['url'] = 'url'
-        queryClean['params']['UserID'] = 'key'
-        
-        
-        queryCode = '''
-query = {}
-retrivedData = requests.get(**query)
-
-dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
-        '''.format(json.dumps(queryClean))
-        
-        queryCode = queryCode.replace('"url": "url"', '"url": url')
-        queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
-        
-        return(baseCode + queryCode)
-    
     def clipcode(self):
         _clipcode(self)
-
+    
     def _driverMetadata(self):
         self.metadata =     [{
             "displayName":"List of Datasets",
@@ -156,7 +157,7 @@ class getNIPA():
             self._lastLoad = output['dataFrame']
             return(self._lastLoad)
         else:
-           output['code']    = self._getCode(query)
+           output['code']    = _getCode(query)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
@@ -258,7 +259,7 @@ class getGetParameterList():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = self._getCode(query)
+           output['code']    = _getCode(query)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       

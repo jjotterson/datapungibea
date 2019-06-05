@@ -62,5 +62,7 @@ class data(delegator):
 if __name__ == '__main__':
     
     d = data()
-    print(d)
+    print(d.datasetlist(verbose=True)['code'])
+    print(d.datasetlist(verbose=True))
+
     #print(NIPA('T10101'))
