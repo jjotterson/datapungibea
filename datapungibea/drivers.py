@@ -883,7 +883,7 @@ class getUnderlyingGDPbyIndustry():
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
-    def InputOutput(self,
+    def UnderlyingGDPbyIndustry(self,
         Industry,
         TableID,
         Frequency,
