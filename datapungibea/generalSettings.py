@@ -118,7 +118,57 @@ def getPackageMetadata():
              "method"     :"NIPA",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{'tableName':'T10101','year':'X','frequency':'Q'}, #Parameters and default options.
             },
-            ],
+            {
+             "displayName":"MNE",
+             "method"     :"MEN",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{
+                 "Frequency"					        :"Q",
+	               "TableID"					        	:"T10101",
+                 "DirectionOfInvestment"  		:"inward" ,
+                 "OwnershipLevel"				      :"0" ,
+                 "NonbankAffiliatesOnly"		  :"0" ,
+                 "Classification"				      :"Country" ,
+                 "Country"						        :"all" ,
+                 "Industry"					          :"all" ,
+                 "Year"						            :"all" ,
+                 "State"						          :"all" ,
+                 "SeriesID"					          :"0" ,
+                 "GetFootnotes"				        :"no" ,	
+                 "Investment"					        :"all" ,	
+                 "ParentInvestment"		        :"all" ,	 
+              }, #Parameters and default options.
+            },            
+            {
+             "displayName":"FixedAssets",
+             "method"     :"FixedAssets",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{'TableName':'NIPA','Year':'Year'}, #Parameters and default options.
+            },              
+            {
+             "displayName":"ITA",
+             "method"     :"ITA",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"Indicator":"","AreaOrCountry":"","Frequency":"","Year":""}, #Parameters and default options.
+            },              
+            {
+             "displayName":"IIP",
+             "method"     :"IIP",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"TypeOfInvestment":"","Component":"","Frequency":"","Year":""}, #Parameters and default options.
+            },              
+            {
+             "displayName":"GDPbyIndustry",
+             "method"     :"GDPbyIndustry",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"Industry":"","TableID":"","Frequency":"","Year":""}, #Parameters and default options.
+            },              
+            {
+             "displayName":"RegionalIncome",
+             "method"     :"RegionalIncome",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"GeoFips":"","LineCode":"","TableName":"","Year":""}, #Parameters and default options.
+            },              
+            {
+             "displayName":"RegionalProduct",
+             "method"     :"RegionalProduct",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"GeoFips":"","Component":"","IndustryId":"","Year":""}, #Parameters and default options.
+            },              
+          ],
      }  
     
     return(output)

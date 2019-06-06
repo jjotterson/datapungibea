@@ -317,6 +317,502 @@ class getGetParameterValues():
             "params"     :{},
         }]
 
+class getMNE():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def MNE(self,
+	    Frequency,				
+	    TableID,				
+        DirectionOfInvestment,  	
+        OwnershipLevel,				
+        NonbankAffiliatesOnly,		
+        Classification,				 
+        Country,					
+        Industry,					
+        Year,						
+        State,						
+        SeriesID,					
+        GetFootnotes,				
+        Investment,						
+        ParentInvestment,				
+        payload        = {'method': 'GETDATA',  'datasetname': 'MNE', 'ParameterName': 'TableID'},
+        tryFrequencies = False,  #TODO: remove
+        outputFormat   = "tablePretty",
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({ "Frequency"			   :  Frequency			     })
+        query['params'].update({ "TableID"			       :  TableID			     })
+        query['params'].update({ "DirectionOfInvestment"   :  DirectionOfInvestment  })
+        query['params'].update({ "OwnershipLevel"		   :  OwnershipLevel		 })
+        query['params'].update({ "NonbankAffiliatesOnly"   :  NonbankAffiliatesOnly  })
+        query['params'].update({ "Classification"		   :  Classification		 })        
+        query['params'].update({ "Country"			       :  Country			     })
+        query['params'].update({ "Industry"			       :  Industry			     })
+        query['params'].update({ "Year"				       :  Year				     })
+        query['params'].update({ "State"				   :  State				     })
+        query['params'].update({ "SeriesID"			       :  SeriesID			     })
+        query['params'].update({ "GetFootnotes"		       :  GetFootnotes		     })
+        query['params'].update({ "Investment"			   :  Investment			 })
+        query['params'].update({ "ParentInvestment"        :  ParentInvestment	     })
+
+        query['params'].update(payload)
+        
+        # TODO: try loading different frenquencies if no return
+        #
+        retrivedData = requests.get(**query)
+        
+        output         = self._cleanOutput(query,retrivedData,outputFormat) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(self._lastLoad)
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData, outputFormat):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+        
+        if outputFormat == "tablePretty":
+            df_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])
+            df_output['DataValue'] = pd.to_numeric(df_output['DataValue'])
+            
+            meta = df_output.drop(['DataValue', 'TimePeriod'], axis=1).drop_duplicates()
+            meta = meta.set_index(['LineNumber', 'SeriesCode', 'LineDescription']).reset_index()
+            
+            df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]
+            df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
+            
+            output = {'dataFrame':df_output,'metadata':meta}
+            
+        return(output)
+     
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"List of Datasets",
+            "method"     :"datasetlist",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+class getFixedAssets():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def fixedAssets(self,
+        TableName,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'FixedAssets'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'TableName':TableName})
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+class getITA():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def ITA(self,
+        Indicator,
+        AreaOrCountry,
+        Frequency,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'ITA'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'Indicator':Indicator})
+        query['params'].update({'AreaOrCountry':AreaOrCountry})
+        query['params'].update({'Frequency':Frequency})
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+class getIIP():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def IIP(self,
+        TypeOfInvestment,
+        Component,
+        Frequency,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'IIP'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'TypeOfInvestment':TypeOfInvestment})
+        query['params'].update({'Component':Component})
+        query['params'].update({'Frequency':Frequency})
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+class getGDPbyIndustry():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def GDPbyIndustry(self,
+        Industry,
+        TableID,
+        Frequency,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'GDPbyIndustry'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'Industry':Industry})
+        query['params'].update({'TableID':TableID})
+        query['params'].update({'Frequency':Frequency})
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+class getRegionalIncome():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def RegionalIncome(self,
+        GeoFips,
+        LineCode,
+        TableName,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'RegionalIncome'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'GeoFips':GeoFips})
+        query['params'].update({'LineCode':LineCode})
+        query['params'].update({'TableName':TableName})
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+class getRegionalProduct():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def RegionalProduct(self,
+        GeoFips,
+        Component,
+        IndustryId,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'RegionalProduct'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({'GeoFips':GeoFips})
+        query['params'].update({'Component':Component})
+        query['params'].update({'IndustryId':IndustryId})
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+
 if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA
     #v = getNIPA()

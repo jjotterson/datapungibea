@@ -32,10 +32,17 @@ class delegator(object):
 
 class data(delegator):
     DELEGATED_METHODS = {
-        'getNIPA':               ['NIPA'],
-        'getDatasetlist':        ['datasetlist'],
-        'getGetParameterList':   ['getParameterList'],
-        'getGetParameterValues': ['getParameterValues'],
+        'getNIPA'                : ['NIPA'],
+        'getDatasetlist'         : ['datasetlist'],
+        'getGetParameterList'    : ['getParameterList'],
+        'getGetParameterValues'  : ['getParameterValues'],
+        'getMNE'                 : ['MNE'],
+        'getFixedAssets'         : ['fixedAssets'],
+        'getITA'                 : ['ITA'],
+        'getIIP'                 : ['IIP'],
+        'getGDPbyIndustry'       : ['GDPbyIndustry'],
+        'getRegionalIncome'      : ['RegionalIncome'],
+        'getRegionalProduct'     : ['RegionalProduct'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         '''
@@ -53,6 +60,8 @@ class data(delegator):
         self.getNIPA               = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
         self.getGetParameterList   = drivers.getGetParameterList(baseRequest = self.__connectInfo.baseRequest)
         self.getGetParameterValues = drivers.getGetParameterValues(baseRequest = self.__connectInfo.baseRequest)
+        self.getMNE                = drivers.getMNE(baseRequest = self.__connectInfo.baseRequest)
+        self.getFixedAssets        = drivers.getFixedAssets(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
         
 
