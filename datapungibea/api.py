@@ -32,10 +32,10 @@ class delegator(object):
 
 class data(delegator):
     DELEGATED_METHODS = {
-        'getNIPA'                    : ['NIPA'],
         'getDatasetlist'             : ['datasetlist'],
         'getGetParameterList'        : ['getParameterList'],
         'getGetParameterValues'      : ['getParameterValues'],
+        'getNIPA'                    : ['NIPA'],
         'getMNE'                     : ['MNE'],
         'getFixedAssets'             : ['fixedAssets'],
         'getITA'                     : ['ITA'],
@@ -61,11 +61,12 @@ class data(delegator):
         self._help     = self.__connectInfo.datasourceOverview
         #load drivers:
         self.getDatasetlist        = drivers.getDatasetlist(self.__connectInfo.baseRequest)
-        self.getNIPA               = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
         self.getGetParameterList   = drivers.getGetParameterList(baseRequest = self.__connectInfo.baseRequest)
         self.getGetParameterValues = drivers.getGetParameterValues(baseRequest = self.__connectInfo.baseRequest)
+        self.getNIPA               = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
         self.getMNE                = drivers.getMNE(baseRequest = self.__connectInfo.baseRequest)
         self.getFixedAssets        = drivers.getFixedAssets(baseRequest = self.__connectInfo.baseRequest)
+        self.getITA                = drivers.getITA(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
         
 
@@ -75,8 +76,11 @@ class data(delegator):
 if __name__ == '__main__':
     
     d = data()
-    print(d.datasetlist(verbose=True)['code'])
-    #print(d.datasetlist(verbose=True))
-    print(d.fixedAssets('FAAt101','X'))
+    #print(d.datasetlist(verbose=True)['code'])
+    #print(d.getParameterList('FixedAssets',verbose=True))  #TODO: harmonize the names - use the same as listed in the datasetlist
+    #print(d.getParameterValues('NIPA','Year',verbose=True))
+    #print(d.NIPA('T0101'))
+    #print(d.fixedAssets('FAAt101','X'))
+    print(d.ITA('BalCurrAcct','Brazil','A','2010'))
 
     #print(NIPA('T10101'))

@@ -330,7 +330,7 @@ class getMNE():
 	    TableID,				
         DirectionOfInvestment,  	
         OwnershipLevel,				
-        NonbankAffiliatesOnly,		
+        NonbankAffiliatesOnly,		 
         Classification,				 
         Country,					
         Industry,					
@@ -531,10 +531,22 @@ class getITA():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            try: #one line datasets will need to be transformed in an array
+                df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            except:
+                try:
+                    df_output =  pd.DataFrame([retrivedData.json()['BEAAPI']['Results']['Data']])
+                except:
+                    df_output = pd.DataFrame([])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+            try: #one line datasets will need to be transformed in an array
+               df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            except:
+                try:
+                    df_output =  pd.DataFrame([retrivedData.json()['BEAAPI']['Results']['Data']])
+                except:
+                    df_output = pd.DataFrame([])
+                  
         output = {'dataFrame':df_output}
                     
         return(output)
