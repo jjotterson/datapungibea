@@ -1011,6 +1011,73 @@ class getIntlServTrade():
         }]
 
 
+class getRegional():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
+        '''
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def Regional(self,
+        GeoFips,
+        LineCode,
+        TableName,
+        Year,
+        payload        = {'method': 'GETDATA',  'datasetname': 'Regional'},
+        verbose        = False
+    ):
+        '''
+            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
+            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+            
+            payload - will override the default
+            
+            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
+                           Else, returns the JSON, XML.
+        '''
+        # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
+        # load user preferences defined in userSettings, use suggested parameters, override w fun entry
+        query = self._baseRequest
+        query['params'].update({"GeoFips"   : GeoFips   })
+        query['params'].update({"LineCode"  : LineCode  })
+        query['params'].update({"TableName" : TableName })
+        query['params'].update({'Year':Year})
+        query['params'].update(payload)
+        
+        retrivedData = requests.get(**query) 
+        output       = self._cleanOutput(query,retrivedData) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = _getCode(query)
+           output['request'] = retrivedData
+           self._lastLoad = output
+           return(output)       
+    
+    def _cleanOutput(self,query,retrivedData):
+        if query['params']['ResultFormat'] == 'JSON':
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+        else:
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+         
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"Parameter of Dataset",
+            "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+
 
 if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA

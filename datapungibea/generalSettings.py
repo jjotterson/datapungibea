@@ -183,6 +183,11 @@ def getPackageMetadata():
              "method"     :"IntlServTrade",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{"TypeOfService":"","TradeDirection":"","Affiliation":"","AreaOrCountry":"", "Year":""}, #Parameters and default options.
             },                          
+            {
+             "displayName":"Regional",
+             "method"     :"Regional",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"GeoFips"   :"","LineCode"  :"","TableName" :"", "Year":""}, #Parameters and default options.
+            },                          
           ],
      }  
     

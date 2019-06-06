@@ -46,6 +46,7 @@ class data(delegator):
         'getInputOutput'             : ['InputOutput'],
         'getUnderlyingGDPbyIndustry' : ['UnderlyingGDPbyIndustry'],
         'getIntlServTrade'           : ['IntlServTrade'],
+        'getRegional'                : ['Regional'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         '''
