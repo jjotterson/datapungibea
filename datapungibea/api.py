@@ -44,6 +44,7 @@ class data(delegator):
         'getRegionalIncome'      : ['RegionalIncome'],
         'getRegionalProduct'     : ['RegionalProduct'],
         'getInputOutput'         : ['InputOutput'],
+        'getUnderlyingGDPbyIndustry'         : ['UnderlyingGDPbyIndustry'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         '''

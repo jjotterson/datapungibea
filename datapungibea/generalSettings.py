@@ -173,6 +173,11 @@ def getPackageMetadata():
              "method"     :"InputOutput",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{"TableID":"","Year":""}, #Parameters and default options.
             },                          
+            {
+             "displayName":"Under. GDP by Industry",
+             "method"     :"UnderlyingGDPbyIndustry",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"Industry":"Industry", "TableID":"","Frequency":"", "Year":""}, #Parameters and default options.
+            },                          
           ],
      }  
     
