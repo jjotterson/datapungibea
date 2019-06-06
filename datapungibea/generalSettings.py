@@ -168,6 +168,11 @@ def getPackageMetadata():
              "method"     :"RegionalProduct",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{"GeoFips":"","Component":"","IndustryId":"","Year":""}, #Parameters and default options.
             },              
+            {
+             "displayName":"InputOutput",
+             "method"     :"InputOutput",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"TableID":"","Year":""}, #Parameters and default options.
+            },                          
           ],
      }  
     
