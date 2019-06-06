@@ -120,7 +120,7 @@ def getPackageMetadata():
             },
             {
              "displayName":"MNE",
-             "method"     :"MEN",   #NOTE run with getattr(data,'datasetlist')()
+             "method"     :"MNE",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{
                  "Frequency"					        :"Q",
 	               "TableID"					        	:"T10101",
@@ -139,8 +139,8 @@ def getPackageMetadata():
               }, #Parameters and default options.
             },            
             {
-             "displayName":"FixedAssets",
-             "method"     :"FixedAssets",   #NOTE run with getattr(data,'datasetlist')()
+             "displayName":"Fixed Assets",
+             "method"     :"fixedAssets",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{'TableName':'NIPA','Year':'Year'}, #Parameters and default options.
             },              
             {
@@ -154,7 +154,7 @@ def getPackageMetadata():
              "params"     :{"TypeOfInvestment":"","Component":"","Frequency":"","Year":""}, #Parameters and default options.
             },              
             {
-             "displayName":"GDPbyIndustry",
+             "displayName":"GDP by Industry",
              "method"     :"GDPbyIndustry",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{"Industry":"","TableID":"","Frequency":"","Year":""}, #Parameters and default options.
             },              

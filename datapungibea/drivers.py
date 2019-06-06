@@ -465,9 +465,9 @@ class getFixedAssets():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -531,9 +531,9 @@ class getITA():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -596,9 +596,9 @@ class getIIP():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -662,9 +662,9 @@ class getGDPbyIndustry():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -728,9 +728,9 @@ class getRegionalIncome():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -794,9 +794,9 @@ class getRegionalProduct():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -856,9 +856,9 @@ class getInputOutput():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -923,9 +923,9 @@ class getUnderlyingGDPbyIndustry():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -992,9 +992,9 @@ class getIntlServTrade():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     
@@ -1059,9 +1059,9 @@ class getRegional():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
                     

@@ -11,7 +11,7 @@ class delegator(object):
     def __getattr__(self, called_method):
         def __raise_standard_exception():
             raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, called_method))
-
+        
         def wrapper(*args, **kwargs):
             delegation_config = getattr(self, 'DELEGATED_METHODS', None)
             if not isinstance(delegation_config, dict):
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     
     d = data()
     print(d.datasetlist(verbose=True)['code'])
-    print(d.datasetlist(verbose=True))
+    #print(d.datasetlist(verbose=True))
+    print(d.fixedAssets('FAAt101','X'))
 
     #print(NIPA('T10101'))
