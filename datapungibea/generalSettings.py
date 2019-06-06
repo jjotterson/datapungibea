@@ -178,6 +178,11 @@ def getPackageMetadata():
              "method"     :"UnderlyingGDPbyIndustry",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{"Industry":"Industry", "TableID":"","Frequency":"", "Year":""}, #Parameters and default options.
             },                          
+            {
+             "displayName":"Intl Serv Trade",
+             "method"     :"IntlServTrade",   #NOTE run with getattr(data,'datasetlist')()
+             "params"     :{"TypeOfService":"","TradeDirection":"","Affiliation":"","AreaOrCountry":"", "Year":""}, #Parameters and default options.
+            },                          
           ],
      }  
     

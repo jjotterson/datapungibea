@@ -32,19 +32,20 @@ class delegator(object):
 
 class data(delegator):
     DELEGATED_METHODS = {
-        'getNIPA'                : ['NIPA'],
-        'getDatasetlist'         : ['datasetlist'],
-        'getGetParameterList'    : ['getParameterList'],
-        'getGetParameterValues'  : ['getParameterValues'],
-        'getMNE'                 : ['MNE'],
-        'getFixedAssets'         : ['fixedAssets'],
-        'getITA'                 : ['ITA'],
-        'getIIP'                 : ['IIP'],
-        'getGDPbyIndustry'       : ['GDPbyIndustry'],
-        'getRegionalIncome'      : ['RegionalIncome'],
-        'getRegionalProduct'     : ['RegionalProduct'],
-        'getInputOutput'         : ['InputOutput'],
-        'getUnderlyingGDPbyIndustry'         : ['UnderlyingGDPbyIndustry'],
+        'getNIPA'                    : ['NIPA'],
+        'getDatasetlist'             : ['datasetlist'],
+        'getGetParameterList'        : ['getParameterList'],
+        'getGetParameterValues'      : ['getParameterValues'],
+        'getMNE'                     : ['MNE'],
+        'getFixedAssets'             : ['fixedAssets'],
+        'getITA'                     : ['ITA'],
+        'getIIP'                     : ['IIP'],
+        'getGDPbyIndustry'           : ['GDPbyIndustry'],
+        'getRegionalIncome'          : ['RegionalIncome'],
+        'getRegionalProduct'         : ['RegionalProduct'],
+        'getInputOutput'             : ['InputOutput'],
+        'getUnderlyingGDPbyIndustry' : ['UnderlyingGDPbyIndustry'],
+        'getIntlServTrade'           : ['IntlServTrade'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         '''
