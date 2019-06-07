@@ -57,14 +57,19 @@ def getBaseRequest(connectionParameters={},userSettings={}):
 def getDatasourceOverview():
     output = '''
          Userguides:
+          NOTE: Datasets RegionalIncome and RegionalProduct were deprecated, use Regional instead. 
+          
           https://apps.bea.gov/api/_pdf/bea_web_service_api_user_guide.pdf
           https://www.bea.gov/tools/   or  https://apps.bea.gov/API/signup/index.cfm
          
-          Basically, there are three types of meta: 
+          Basically, there are three types of meta (the first three tabs): 
             (1) GETDATASETLIST      top level, get the name of all tables.  
             (2) GetParameterList    given a table, what parameters it needs to download (eg. NIPA)
             (3) GetParameterValues  given a parameter of a table, which values you can choose. (eg. TableID)
-         
+           
+            Use them to get: name of datasets, their paramaters, and the values of the parameters.  These 
+            can be used in the searches of individual datasets (in the other tabs)  
+
          Sample python code (getting the list of datasets):
          
             import requests 
@@ -158,16 +163,16 @@ def getPackageMetadata():
              "method"     :"GDPbyIndustry",   #NOTE run with getattr(data,'datasetlist')()
              "params"     :{"Industry":"","TableID":"","Frequency":"","Year":""}, #Parameters and default options.
             },              
-            {
-             "displayName":"RegionalIncome",
-             "method"     :"RegionalIncome",   #NOTE run with getattr(data,'datasetlist')()
-             "params"     :{"GeoFips":"","LineCode":"","TableName":"","Year":""}, #Parameters and default options.
-            },              
-            {
-             "displayName":"RegionalProduct",
-             "method"     :"RegionalProduct",   #NOTE run with getattr(data,'datasetlist')()
-             "params"     :{"GeoFips":"","Component":"","IndustryId":"","Year":""}, #Parameters and default options.
-            },              
+            #{  #RegionalIncome and RegionalProduct were deprecated - use Regional Instead.
+            # "displayName":"RegionalIncome",
+            # "method"     :"RegionalIncome",   #NOTE run with getattr(data,'datasetlist')()
+            # "params"     :{"GeoFips":"","LineCode":"","TableName":"","Year":""}, #Parameters and default options.
+            #},              
+            #{
+            # "displayName":"RegionalProduct",
+            # "method"     :"RegionalProduct",   #NOTE run with getattr(data,'datasetlist')()
+            # "params"     :{"GeoFips":"","Component":"","IndustryId":"","Year":""}, #Parameters and default options.
+            #},              
             {
              "displayName":"InputOutput",
              "method"     :"InputOutput",   #NOTE run with getattr(data,'datasetlist')()

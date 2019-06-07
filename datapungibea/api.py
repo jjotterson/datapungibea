@@ -60,14 +60,20 @@ class data(delegator):
         self._metadata = self.__connectInfo.packageMetadata
         self._help     = self.__connectInfo.datasourceOverview
         #load drivers:
-        self.getDatasetlist        = drivers.getDatasetlist(self.__connectInfo.baseRequest)
-        self.getGetParameterList   = drivers.getGetParameterList(baseRequest = self.__connectInfo.baseRequest)
-        self.getGetParameterValues = drivers.getGetParameterValues(baseRequest = self.__connectInfo.baseRequest)
-        self.getNIPA               = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
-        self.getMNE                = drivers.getMNE(baseRequest = self.__connectInfo.baseRequest)
-        self.getFixedAssets        = drivers.getFixedAssets(baseRequest = self.__connectInfo.baseRequest)
-        self.getITA                = drivers.getITA(baseRequest = self.__connectInfo.baseRequest)
-        self.getIIP                = drivers.getIIP(baseRequest = self.__connectInfo.baseRequest)
+        self.getDatasetlist                = drivers.getDatasetlist(self.__connectInfo.baseRequest)
+        self.getGetParameterList           = drivers.getGetParameterList(baseRequest = self.__connectInfo.baseRequest)
+        self.getGetParameterValues         = drivers.getGetParameterValues(baseRequest = self.__connectInfo.baseRequest)
+        self.getNIPA                       = drivers.getNIPA(baseRequest = self.__connectInfo.baseRequest)
+        self.getMNE                        = drivers.getMNE(baseRequest = self.__connectInfo.baseRequest)
+        self.getFixedAssets                = drivers.getFixedAssets(baseRequest = self.__connectInfo.baseRequest)
+        self.getITA                        = drivers.getITA(baseRequest = self.__connectInfo.baseRequest)
+        self.getIIP                        = drivers.getIIP(baseRequest = self.__connectInfo.baseRequest)
+        self.getGDPbyIndustry              = drivers.getGDPbyIndustry(baseRequest = self.__connectInfo.baseRequest)
+        self.getRegionalIncome             = drivers.getRegionalIncome(baseRequest = self.__connectInfo.baseRequest)
+        self.getInputOutput                = drivers.getInputOutput(baseRequest = self.__connectInfo.baseRequest)
+        self.getUnderlyingGDPbyIndustry    = drivers.getUnderlyingGDPbyIndustry(baseRequest = self.__connectInfo.baseRequest)
+        self.getIntlServTrade              = drivers.getIntlServTrade(baseRequest = self.__connectInfo.baseRequest)
+        self.getRegional                   = drivers.getRegional(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
         
 
@@ -78,13 +84,20 @@ if __name__ == '__main__':
     
     d = data()
     #print(d.datasetlist(verbose=True)['code'])
-    #print(d.getParameterList('FixedAssets',verbose=True))  #TODO: harmonize the names - use the same as listed in the datasetlist
+    #print(d.getParameterList('FixedAssets',verbose=True))   #TODO: harmonize the names - use the same as listed in the datasetlist
     #print(d.getParameterValues('NIPA','Year',verbose=True))
     #print(d.NIPA('T0101'))
     #print(d.fixedAssets('FAAt101','X'))
     #print(d.ITA('BalCurrAcct','Brazil','A','2010'))
-    #print(d.getParameterList('IIP',verbose=True))
-    #print(d.getParameterValues('IIP','Component',verbose=False))
-    print(d.IIP('FinAssets','Pos','A','2010'))
+    #print(d.IIP(TypeOfInvestment='DebtSecAssets',Component='All',Frequency='All',Year='All'))    #NOTE: for IIP, either use All years of All TypeOfInvestment            
+    #print(d.IIP('All','All','All','2010'))              
+    #print(d.GDPbyIndustry('211','1','A','2018'))
+    #RegionalIncome and RegionalOutput were deprecated - use Regional instead.
+    #print(d.InputOutput('56','2018'))                       #TODO: not working
+    #print(d.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL')) #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A TODO: email BEA
+    #print(d.IntlServTrade        ('ALL','ALL','ALL','AllCountries','All')) 
+    #print(d.Regional              ('00000','1','SAGDP5N', '2015,2016')) 
+    #print(d.Regional              ('00000','1','SAGDP5N', 'All')) 
+    
 
     #print(NIPA('T10101'))
