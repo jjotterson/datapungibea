@@ -608,7 +608,7 @@ class getIIP():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #NOTE: Not workings, works if use "Dimensions" instead of data, but not sure if this is the right thing.
         else:
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          

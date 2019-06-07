@@ -67,6 +67,7 @@ class data(delegator):
         self.getMNE                = drivers.getMNE(baseRequest = self.__connectInfo.baseRequest)
         self.getFixedAssets        = drivers.getFixedAssets(baseRequest = self.__connectInfo.baseRequest)
         self.getITA                = drivers.getITA(baseRequest = self.__connectInfo.baseRequest)
+        self.getIIP                = drivers.getIIP(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
         
 
@@ -81,6 +82,9 @@ if __name__ == '__main__':
     #print(d.getParameterValues('NIPA','Year',verbose=True))
     #print(d.NIPA('T0101'))
     #print(d.fixedAssets('FAAt101','X'))
-    print(d.ITA('BalCurrAcct','Brazil','A','2010'))
+    #print(d.ITA('BalCurrAcct','Brazil','A','2010'))
+    #print(d.getParameterList('IIP',verbose=True))
+    #print(d.getParameterValues('IIP','Component',verbose=False))
+    print(d.IIP('FinAssets','Pos','A','2010'))
 
     #print(NIPA('T10101'))
