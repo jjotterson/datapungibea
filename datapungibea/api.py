@@ -40,9 +40,9 @@ class data(delegator):
         'getFixedAssets'             : ['fixedAssets'],
         'getITA'                     : ['ITA'],
         'getIIP'                     : ['IIP'],
-        'getGDPbyIndustry'           : ['GDPbyIndustry'],
-        'getRegionalIncome'          : ['RegionalIncome'],
-        'getRegionalProduct'         : ['RegionalProduct'],
+        'getGDPbyIndustry'           : ['GDPbyIndustry'],  
+        'getRegionalIncome'          : ['RegionalIncome'],  #deprecated, use Regional instead
+        'getRegionalProduct'         : ['RegionalProduct'], #deprecated, use Regional instead
         'getInputOutput'             : ['InputOutput'],
         'getUnderlyingGDPbyIndustry' : ['UnderlyingGDPbyIndustry'],
         'getIntlServTrade'           : ['IntlServTrade'],
@@ -70,6 +70,7 @@ class data(delegator):
         self.getIIP                        = drivers.getIIP(baseRequest = self.__connectInfo.baseRequest)
         self.getGDPbyIndustry              = drivers.getGDPbyIndustry(baseRequest = self.__connectInfo.baseRequest)
         self.getRegionalIncome             = drivers.getRegionalIncome(baseRequest = self.__connectInfo.baseRequest)
+        self.getRegionalProduct            = drivers.getRegionalProduct(baseRequest = self.__connectInfo.baseRequest)
         self.getInputOutput                = drivers.getInputOutput(baseRequest = self.__connectInfo.baseRequest)
         self.getUnderlyingGDPbyIndustry    = drivers.getUnderlyingGDPbyIndustry(baseRequest = self.__connectInfo.baseRequest)
         self.getIntlServTrade              = drivers.getIntlServTrade(baseRequest = self.__connectInfo.baseRequest)
@@ -81,23 +82,36 @@ class data(delegator):
 
 
 if __name__ == '__main__':
+    #TODO TODO: Need to test MNE
+    #TODO: harmonize the names - use the same as listed in the datasetlist, include the function entry names in the example below
+    #TODO: transform this into tests
     
     d = data()
+
+    #METADATA Functions:
     #print(d.datasetlist(verbose=True)['code'])
-    #print(d.getParameterList('FixedAssets',verbose=True))   #TODO: harmonize the names - use the same as listed in the datasetlist
+    #print(d.getParameterList('FixedAssets',verbose=True))   
     #print(d.getParameterValues('NIPA','Year',verbose=True))
+
     #print(d.NIPA('T0101'))
+
     #print(d.fixedAssets('FAAt101','X'))
+
     #print(d.ITA('BalCurrAcct','Brazil','A','2010'))
+
     #print(d.IIP(TypeOfInvestment='DebtSecAssets',Component='All',Frequency='All',Year='All'))    #NOTE: for IIP, either use All years of All TypeOfInvestment            
     #print(d.IIP('All','All','All','2010'))              
-    #print(d.GDPbyIndustry('211','1','A','2018'))
-    #RegionalIncome and RegionalOutput were deprecated - use Regional instead.
-    #print(d.InputOutput('56','2018'))                       #TODO: not working
-    #print(d.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL')) #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A TODO: email BEA
-    #print(d.IntlServTrade        ('ALL','ALL','ALL','AllCountries','All')) 
-    #print(d.Regional              ('00000','1','SAGDP5N', '2015,2016')) 
-    #print(d.Regional              ('00000','1','SAGDP5N', 'All')) 
-    
 
-    #print(NIPA('T10101'))
+    #print(d.GDPbyIndustry('211','1','A','2018'))
+
+    #RegionalIncome and RegionalOutput were deprecated - use Regional instead.
+    #d.getRegionalIncome.RegionalIncome()
+    #d.getRegionalProduct.RegionalProduct()
+
+    #print(d.InputOutput(TableID='56',Year='2010'))                       
+    #print(d.InputOutput('All','All'))                       
+    #print(d.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL')) #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A TODO: email BEA
+    #print(d.IntlServTrade('ALL','ALL','ALL','AllCountries','All')) 
+    
+    #print(d.Regional('00000','1','SAGDP5N', '2015,2016')) 
+    #print(d.Regional('00000','1','SAGDP5N', 'All')) 

@@ -8,7 +8,7 @@
 
 from . import utils
 
-class getGeneralSettings(): #TODO: write as a mixin
+class getGeneralSettings(): #NOTE: write as a mixin?
     def __init__(self,connectionParameters={},userSettings={}):
         ''' 
          sessionParameters  - API key and the url (most used) of the datasource
@@ -197,17 +197,3 @@ def getPackageMetadata():
      }  
     
     return(output)
-
-
-
-'''
-
-
-                {
-                 "displayName":"NIPA",
-                 "method"     :"NIPA",   #NOTE run with getattr(data,'datasetlist')()
-                 "params"     :{'Year':'X','Frequency':'Q'}, #Parameters and default options.
-                },
-             ],
-        }
-'''
