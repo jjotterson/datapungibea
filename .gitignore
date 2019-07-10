@@ -1,5 +1,4 @@
 #BEA API Key will be stored in config.py - gitignoring this file
-/tests/*
 datapungibea/config.py
 datapungibea/beaData/
 datapungibea/beaDataClean/
@@ -124,3 +123,4 @@ datapungibea/beaHist1000.py
 .idea/workspace.xml
 datapungibea/config/userSettings.json
 datapungibea/config/userSettings.json
+.vscode/settings.json

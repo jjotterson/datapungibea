@@ -89,11 +89,11 @@ if __name__ == '__main__':
     d = data()
 
     #METADATA Functions:
-    #print(d.datasetlist(verbose=True)['code'])
+    print(d.datasetlist(verbose=True)['code'])
     #print(d.getParameterList('FixedAssets',verbose=True))   
     #print(d.getParameterValues('NIPA','Year',verbose=True))
 
-    #print(d.NIPA('T0101'))
+    #print(d.NIPA('T10101'))
 
     #print(d.fixedAssets('FAAt101','X'))
 
@@ -114,4 +114,6 @@ if __name__ == '__main__':
     #print(d.IntlServTrade('ALL','ALL','ALL','AllCountries','All')) 
     
     #print(d.Regional('00000','1','SAGDP5N', '2015,2016')) 
-    #print(d.Regional('00000','1','SAGDP5N', 'All')) 
+
+    print('Regional data test')
+    print(d.Regional('00000','1','SAGDP5N', 'All')) 
