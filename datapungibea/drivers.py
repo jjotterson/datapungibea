@@ -78,7 +78,7 @@ class getDatasetlist():
         self._lastLoad       = {}  #data stored here to assist functions such as clipcode
     
     def datasetlist(self,params = {},verbose=False):
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'method':'GETDATASETLIST'})
         
         retrivedData = requests.get(**query)
@@ -141,7 +141,7 @@ class getNIPA():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'TABLENAME': tableName})
         query['params'].update({'FREQUENCY':frequency})
         query['params'].update({'YEAR':year})
@@ -219,7 +219,7 @@ class getGetParameterList():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'datasetname':datasetname})
         query['params'].update(payload)
         
@@ -280,7 +280,7 @@ class getGetParameterValues():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'datasetname':datasetName})
         query['params'].update({'parameterName':parameterName})
         query['params'].update(payload)
@@ -356,7 +356,7 @@ class getMNE():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({ "Frequency"			   :  Frequency			     })
         query['params'].update({ "TableID"			       :  TableID			     })
         query['params'].update({ "DirectionOfInvestment"   :  DirectionOfInvestment  })
@@ -446,7 +446,7 @@ class getFixedAssets():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'TableName':TableName})
         query['params'].update({'Year':Year})
         query['params'].update(payload)
@@ -510,7 +510,7 @@ class getITA():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'Indicator':Indicator})
         query['params'].update({'AreaOrCountry':AreaOrCountry})
         query['params'].update({'Frequency':Frequency})
@@ -587,7 +587,7 @@ class getIIP():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'TypeOfInvestment':TypeOfInvestment})
         query['params'].update({'Component':Component})
         query['params'].update({'Frequency':Frequency})
@@ -653,7 +653,7 @@ class getGDPbyIndustry():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'Industry':Industry})
         query['params'].update({'TableID':TableID})
         query['params'].update({'Frequency':Frequency})
@@ -744,7 +744,7 @@ class getInputOutput():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'TableID':TableID})
         query['params'].update({'Year':Year})
         query['params'].update(payload)
@@ -809,7 +809,7 @@ class getUnderlyingGDPbyIndustry():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({'Industry':Industry})
         query['params'].update({'TableID':TableID})
         query['params'].update({'Frequency':Frequency})
@@ -877,7 +877,7 @@ class getIntlServTrade():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({"TypeOfService" : TypeOfService})
         query['params'].update({"TradeDirection": TradeDirection})
         query['params'].update({"Affiliation"   : Affiliation})
@@ -945,7 +945,7 @@ class getRegional():
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
-        query = self._baseRequest
+        query = deepcopy(self._baseRequest)
         query['params'].update({"GeoFips"   : GeoFips   })
         query['params'].update({"LineCode"  : LineCode  })
         query['params'].update({"TableName" : TableName })

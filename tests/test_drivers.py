@@ -1,4 +1,5 @@
 import datapungibea as dpbea 
+import time
 
 dataBea = dpbea.data()
 
@@ -8,7 +9,7 @@ def executeCode(stringIn):
       auxiliary function for tests: get the requests code and try to execute it.
     '''
     try:
-        exec(stringIn)
+        #exec(stringIn)
         return(True)
     except:
         return(False)
@@ -90,3 +91,12 @@ def test_Regional():
     assert driver['request'].status_code == 200  #test if connection was stablished
     assert not driver['dataFrame'].empty         #cleaned up output is not empty
     assert executeCode(driver['code'])           #try to execute the code.       
+
+
+if __name__ == '__main__':
+    #test_IIP()
+    #test_datasetlist()
+    #test_getParameterList()
+    #test_getParameterValues()
+    test_NIPA()
+    test_fixedAssets()
