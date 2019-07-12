@@ -9,7 +9,7 @@ def executeCode(stringIn):
       auxiliary function for tests: get the requests code and try to execute it.
     '''
     try:
-        #exec(stringIn)
+        exec(stringIn) #exec('print("hi")') #
         return(True)
     except:
         return(False)

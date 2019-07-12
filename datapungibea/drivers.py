@@ -24,6 +24,7 @@ def _getBaseCode(codeEntries):
     code = '''
 import requests
 import json    
+import pandas as pd
 
 #(1) get user API key (not advised but can just write key and url in the file)
 #    file should contain: {{"BEA":{{"key":"YOUR KEY","url": "{}" }}}}
@@ -35,11 +36,14 @@ with open(apiKeysFile) as jsonFile:
      '''.format(*codeEntries)
     return(code)
 
-def _getCode(query):
+def _getCode(query,userSettings={},pandasCode=""):
     #general code to all drivers:
     try:
         url        = query['url']
-        apiKeyPath = 'hi' #self._connectionInfo.userSettings["ApiKeysPath"]
+        if not userSettings:  #if userSettings is empty dict 
+                apiKeyPath = generalSettings.getGeneralSettings( ).userSettings['ApiKeysPath']
+        else:
+            apiKeyPath = userSettings['ApiKeysPath']
     except:
         url         = " incomplete connection information "
         apiKeyPath = " incomplete connection information "
@@ -56,8 +60,8 @@ def _getCode(query):
 query = {}
 retrivedData = requests.get(**query)
 
-dataFrame =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] ) #replace json by xml if this is the request format
-    '''.format(json.dumps(queryClean))
+{} #replace json by xml if this is the request format
+    '''.format(json.dumps(queryClean),pandasCode)
     
     queryCode = queryCode.replace('"url": "url"', '"url": url')
     queryCode = queryCode.replace('"UserID": "key"', '"UserID": key')
@@ -74,7 +78,7 @@ def _clipcode(self):
 class getDatasetlist():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
-        self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings)
+        self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings)  #TODO: could just pass the output of _connectionInfo here.
         self._lastLoad       = {}  #data stored here to assist functions such as clipcode
     
     def datasetlist(self,params = {},verbose=False):
@@ -89,15 +93,17 @@ class getDatasetlist():
             self._lastLoad = df_output
             return(df_output)
         else:
-            code = _getCode(query)
+            code = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
             output = dict(dataFrame = df_output, request = retrivedData, code = code)  
             self._lastLoad = output
             return(output)  
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
             df_output =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )
         else:
+            self._cleanCode = "pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
             df_output =  pd.DataFrame( retrivedData.xml()['BEAAPI']['Results']['Dataset'] )  #TODO: check this works
     
         return(df_output)
@@ -118,8 +124,9 @@ class getNIPA():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
-        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
-        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) 
+        self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad       = {}  #data stored here to asist other function as clipboard
     
     def NIPA(self,
         tableName,
@@ -157,15 +164,17 @@ class getNIPA():
             self._lastLoad = output['dataFrame']
             return(self._lastLoad)
         else:
-           output['code']    = _getCode(query)
+           output['code'] = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData, outputFormat):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -181,6 +190,12 @@ class getNIPA():
             df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
             
             output = {'dataFrame':df_output,'metadata':meta}
+                        
+            #update the code string:
+            self._cleanCode = self._cleanCode + "\ndf_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])  \n" 
+            self._cleanCode = self._cleanCode + "df_output['DataValue'] = pd.to_numeric(df_output['DataValue'])  \n"  
+            self._cleanCode = self._cleanCode + "df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]  \n"   
+            self._cleanCode = self._cleanCode + "df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first') \n" 
             
         return(output)
      
@@ -200,6 +215,7 @@ class getGetParameterList():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -230,15 +246,17 @@ class getGetParameterList():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
         else:
+            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -260,6 +278,7 @@ class getGetParameterValues():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -292,15 +311,17 @@ class getGetParameterValues():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])
         else:
+            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -322,6 +343,7 @@ class getMNE():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -384,15 +406,17 @@ class getMNE():
             self._lastLoad = output['dataFrame']
             return(self._lastLoad)
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData, outputFormat):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -426,6 +450,7 @@ class getFixedAssets():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -458,15 +483,17 @@ class getFixedAssets():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -488,6 +515,7 @@ class getITA():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -524,7 +552,7 @@ class getITA():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
@@ -532,19 +560,25 @@ class getITA():
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
             try: #one line datasets will need to be transformed in an array
+                self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
                 df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
             except:
                 try:
+                    self._cleanCode = "df_output =  pd.DataFrame([retrivedData.json()['BEAAPI']['Results']['Data']])"
                     df_output =  pd.DataFrame([retrivedData.json()['BEAAPI']['Results']['Data']])
                 except:
+                    self._cleanCode = "df_output = pd.DataFrame([])"
                     df_output = pd.DataFrame([])
         else:
             try: #one line datasets will need to be transformed in an array
+               self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])" 
                df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
             except:
                 try:
+                    self._cleanCode = "df_output =  pd.DataFrame([retrivedData.json()['BEAAPI']['Results']['Data']])"
                     df_output =  pd.DataFrame([retrivedData.json()['BEAAPI']['Results']['Data']])
                 except:
+                    self._cleanCode = "df_output = pd.DataFrame([])"
                     df_output = pd.DataFrame([])
                   
         output = {'dataFrame':df_output}
@@ -565,6 +599,7 @@ class getIIP():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -601,15 +636,17 @@ class getIIP():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Data'])  #NOTE: Not workings, works if use "Dimensions" instead of data, but not sure if this is the right thing.
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -631,6 +668,7 @@ class getGDPbyIndustry():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -667,15 +705,17 @@ class getGDPbyIndustry():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -697,6 +737,7 @@ class getRegionalIncome():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -710,6 +751,7 @@ class getRegionalProduct():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -724,6 +766,7 @@ class getInputOutput():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -756,15 +799,17 @@ class getInputOutput():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -787,6 +832,7 @@ class getUnderlyingGDPbyIndustry():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -823,15 +869,17 @@ class getUnderlyingGDPbyIndustry():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -854,6 +902,7 @@ class getIntlServTrade():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -892,15 +941,17 @@ class getIntlServTrade():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}
@@ -923,6 +974,7 @@ class getRegional():
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
         '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
     
@@ -959,15 +1011,17 @@ class getRegional():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = _getCode(query)
+           output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
            return(output)       
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
         else:
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
          
         output = {'dataFrame':df_output}

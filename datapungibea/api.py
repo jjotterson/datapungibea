@@ -89,13 +89,13 @@ if __name__ == '__main__':
     d = data()
 
     #METADATA Functions:
-    print(d.datasetlist(verbose=True)['code'])
+    #print(d.datasetlist(verbose=True)['code'])
     #print(d.getParameterList('FixedAssets',verbose=True))   
     #print(d.getParameterValues('NIPA','Year',verbose=True))
 
-    print(d.NIPA('T10101'))
+    print(d.NIPA('T10101',verbose=True)['code'])
 
-    print(d.fixedAssets('FAAt101','X'))
+    #print(d.fixedAssets('FAAt101','X'))
 
     #print(d.ITA('BalCurrAcct','Brazil','A','2010'))
 

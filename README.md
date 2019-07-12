@@ -7,7 +7,7 @@
   
   Datapungibea is based on the Requests, a python library that provides access to any API.  Requests is well maintained package with hundreds of contributors and a large corporate sponsorship.  Datapungibea adapts Requests to the specific features of the BEA API; it has the following features:
 
-  - it provides a quick access to the BEA datasets, but at the same time provides the final Requests query used to retrieve the data (which can be placed on a user script for reproducibility);
+  - it provides a quick access to the BEA datasets, but at the same time provides the Requests code snippet used to retrieve the data (which can be placed on a user script for reproducibility);
   - it outputs the whole request output (which includes metadata), but it also provides a cleaned up version, in python pandas format, of the requested dataset;
   - it goes beyond the data provided by the BEA's API to include (see below): (1) NIPA vintage data; (2) NIPA data graphical structure; and (3) NIPA summary tables;      
   - it provides a simplified management (update and read) of the user access keys (API user keys) to avoid having a copy of the key on a user script;
