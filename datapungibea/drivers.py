@@ -100,7 +100,7 @@ class getDatasetlist():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            self._cleanCode = "pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
+            self._cleanCode = "df_output =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
             df_output =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )
         else:
             self._cleanCode = "pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
@@ -253,7 +253,7 @@ class getGetParameterList():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])"
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])
         else:
             self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])"
@@ -318,7 +318,7 @@ class getGetParameterValues():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])"
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])
         else:
             self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])"
@@ -704,7 +704,7 @@ class getGDPbyIndustry():
         if verbose == False:
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
-        else:
+        else: 
            output['code']    = _getCode(query,self._connectionInfo.userSettings,self._cleanCode)
            output['request'] = retrivedData
            self._lastLoad = output
