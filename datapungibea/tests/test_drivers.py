@@ -55,7 +55,7 @@ def test_NIPA():
     assert execCode['codeOutput'].equals(driver['dataFrame']) #test if the output of the code equals the output of the  
 
 def test_fixedAssets():
-    driver = dataBea.fixedAssets('FAAt101','X',verbose=True)
+    driver = dataBea.fixedAssets('FAAt101','2013',verbose=True)   #try all years 
     execCode = executeCode(driver['code']) 
     assert driver['request'].status_code == 200  #test if connection was stablished
     assert not driver['dataFrame'].empty         #cleaned up output is not empty
@@ -95,7 +95,7 @@ def test_InputOutput():
     assert execCode['codeOutput'].equals(driver['dataFrame']) #test if the output of the code equals the output of the  
 
 def test_UnderlyingGDPbyIndustry():
-    driver = dataBea.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL',verbose=True)
+    driver = dataBea.UnderlyingGDPbyIndustry('ALL','ALL','A','2014',verbose=True)   #try all years and check line 40788
     execCode = executeCode(driver['code']) 
     assert driver['request'].status_code == 200  #test if connection was stablished
     assert not driver['dataFrame'].empty         #cleaned up output is not empty

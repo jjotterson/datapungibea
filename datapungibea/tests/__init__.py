@@ -1,0 +1,1 @@
+from datapungibea.tests.main import runTests

@@ -8,7 +8,13 @@ from datapungibea import drivers
 # only initialize a driver if it's being called
 
 class delegator(object):
+    def __init__(self):
+        self._lastCalledDriver = ''
+        
     def __getattr__(self, called_method):
+
+        self._lastCalledMethod = called_method
+
         def __raise_standard_exception():
             raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, called_method))
         
@@ -25,12 +31,21 @@ class delegator(object):
             
             delegate_object = getattr(self, delegate_object_str, None)
             
+            self._lastCalledDriver = delegate_object #NOTE: could use this to track all loaded data etc.  For now, will only use 
+
             return(getattr(delegate_object, called_method)(*args, **kwargs))
     
         return(wrapper)
 
 
 class data(delegator):
+    '''
+       the purpose of this class is to provide an environment where the shared data needed to establish a connection is loaded
+       and to be a one stop shop of listing all available drivers.  
+       :param connectionParameters: a dictionary with at least 'key', and 'url'
+         {'key': 'your key', 'description': 'BEA data', 'url': 'https://apps.bea.gov/api/data/'} 
+       :param userSettings: settings saved in the packge pointing to a json containing the connection parameters 
+    '''
     DELEGATED_METHODS = {
         'getDatasetlist'             : ['datasetlist'],
         'getGetParameterList'        : ['getParameterList'],
@@ -49,13 +64,6 @@ class data(delegator):
         'getRegional'                : ['Regional'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
-        '''
-          the purpose of this class is to provide an environment where the shared data needed to establish a connection is loaded
-          and to be a one stop shop of listing all available drivers.  
-          :param connectionParameters: a dictionary with at least 'key', and 'url'
-            {'key': 'your key', 'description': 'BEA data', 'url': 'https://apps.bea.gov/api/data/'} 
-          :param userSettings: settings saved in the packge pointing to a json containing the connection parameters 
-        '''
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
         self._metadata = self.__connectInfo.packageMetadata
         self._help     = self.__connectInfo.datasourceOverview
@@ -76,6 +84,14 @@ class data(delegator):
         self.getIntlServTrade              = drivers.getIntlServTrade(baseRequest = self.__connectInfo.baseRequest)
         self.getRegional                   = drivers.getRegional(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
+    
+    def __str__(self):
+        return(pd.DataFrame.from_dict(v.DELEGATED_METHODS,orient='index',columns=['Shortcut to Driver']))
+    def _clipcode(self):
+        try:
+            self._lastCalledDriver.clipcode()
+        except:
+            print('Get data using a driver first, eg: data.NIPA("T10101", verbose = True)')
         
 
 
