@@ -37,9 +37,9 @@ def getResourcePath(relativePath, resource_package = __name__):
      Given relative, get its full path
      eg: relative path: /config/userSettings.json
      will return
-     beafullfetchpy path + relative path
+     datapungibea path + relative path
      note: can replace resource_package with package name:
-     eg: 'beafullfetchpy'
+     eg: 'datapungibea'
     '''
     fullPath = pkg_resources.resource_filename(resource_package, relativePath)
     return(fullPath)
@@ -63,14 +63,17 @@ def getUserSettings(userSettings = {}):
 
 def setUserSettings(newPath):  #TODO: check if still valid
     '''
-       sets the api key path in the package config file
+       sets the api key path in the package config file. 
+       eg:
+       import datapungibea as dpb
+       dpb.utils.setUserSettings('myPath')
     '''
     userSettingsPath = getResourcePath('/config/userSettings.json')
     try:
         with open(userSettingsPath) as jsonFile:
              config = json.load(jsonFile)
     except:
-        print('Could not open the configuration file: \n beafullfetchpy/config/userSettings.json')
+        print('Could not open the configuration file: \n datapungi/config/userSettings.json')
         pass
     
     config['ApiKeysPath'] = newPath
@@ -80,5 +83,27 @@ def setUserSettings(newPath):  #TODO: check if still valid
             json.dump(config,jsonFile)
         print('Path to the API Keys updated! New Path: \n' + config['ApiKeysPath'])
     except:
-        print('Could not save the configuration to file: \n beafullfetchpy/config/userSettings.json \n Path API Key not updated')
+        print('Could not save the configuration to file: \n datapungibea/config/userSettings.json \n Path API Key not updated')
         pass
+
+def setTestFolder(newTestsPath):
+    userSettingsPath = getResourcePath('/config/userSettings.json')
+    try:
+        with open(userSettingsPath) as jsonFile:
+             config = json.load(jsonFile)
+    except:
+        print('Could not open the configuration file: \n datapungi/config/userSettings.json')
+        pass
+    
+    config['TestsOutputPath'] = newTestsPath
+
+    try:
+        with open(userSettingsPath,'w') as jsonFile:
+            json.dump(config,jsonFile)
+        print('Path to the Tests Output Folder updated! New Path: \n' + config['TestsOutputPath'])
+    except:
+        print('Could not save the configuration to file: \n datapungibea/config/userSettings.json \n Path to the Tests Output not updated')
+        pass            
+
+if __name__ == '__main__':
+    setTestFolder('U:/Tests')

@@ -15,14 +15,39 @@
   the previously downloaded data has being updated (eg, GDP data tends to be retroactively updated), and (5) if new data is available. 
 
 
-- https://apps.bea.gov/API/signup/index.cfm
-- https://2.python-requests.org//en/master/
   
   
-  provides a connection to BEA datasets .  using BEA's API and the .  
-
-
 <h2> Setting up Datapungibea </h2>
+
+To use the BEA API, **the first step** is to get an API key: 
+
+- https://apps.bea.gov/API/signup/index.cfm
+
+It is not a best practice to save an API key on a script running the code accessing the datasets.  **The second step** to set up datapungibea is to save your API key on a safe file.  In particular, you will need to save your BEA API key on a json file somewhere in your computer.  By default, the json file should contain at least the following: 
+
+{"BEA": {"key": "**PLACE YOUR KEY HERE**", "url": "https://apps.bea.gov/api/data/"}}
+
+That is all that is needed to start running datapungibea.    You can either always point to the API location on a run, such as:
+
+
+import datapungibea as dpb
+drivers = dpb.data(userSettings = {"ApiKeysPath": "**C:/Path to My Folder/myApiKey.json**", "ApiKeyLabel": "BEA","ResultFormat":"JSON"})
+drivers.NIPA('T10101')
+
+
+Or, you may follow **step three (optional)** and save the path to your BEA API key on the package's user settings:
+
+
+import datapungibea as dpb
+dpb.utils.setUserSettings('C:/Path/myKeys.json')
+
+
+<h3>Optional Step - Test Output Folder</h3>
+
+datapungibea comes with a family of tests to check its access to the BEA API and quality of the retrieved data.  Running
+
+import datapungibea as dpb
+
 
 Sample run:
   - 
@@ -34,3 +59,6 @@ Sample run:
     bff.NIPA('T10101')
 
 
+
+- https://apps.bea.gov/API/signup/index.cfm
+- https://2.python-requests.org//en/master/
