@@ -28,7 +28,7 @@ It is not a best practice to save an API key on a script that is running your co
     {  
          "BEA": {"key": "**PLACE YOUR KEY HERE**", "url": "https://apps.bea.gov/api/data/"},
          (...Other API keys...)
-     }
+    }
 
 
 That is all that is needed to start running datapungibea.    You can either always point to the API location on a run, such as:
@@ -90,8 +90,8 @@ You can save your test output folder in the user settings as well (need / at the
     data = dpb.data()     #start the drivers
 
     print(data)                               #displays a list of available drivers 
-    data.NIPA.__doc__                         #get a list of inputs and default options of the driver (NIPA can be replaced by any other driver) 
-    data.NIPA('T10101')                       #load NIPA table T10101 with pre-set options (frequency = Q, get data of all years).  Outputs only a clean pandas dataframe
+    data.NIPA.__doc__                         #get a list of inputs and default options of the driver  
+    data.NIPA('T10101')                       #load and clean NIPA table T10101 (default: frequency = Q, all years).  
 
     all = data.NIPA('T10101',verbose = True)  #This is a dictionary with all data 
     all['code']                               #(1) a code snippet of a requests query of the BEA API
@@ -111,27 +111,28 @@ You can save your test output folder in the user settings as well (need / at the
     #start the drivers:
     data = dpb.data()
     
-    #METADATA Functions.                                    # Use these to get: 
-    data.datasetlist(verbose=True)['code'])                 # (1) the list of BEA datasets with APIs
-    data.getParameterList('FixedAssets',verbose=True))      # (2) the parameters of a specific BEA API 
-    data.getParameterValues('NIPA','Year',verbose=True))    # (3) the options of a parameter of a BEA API 
+    #METADATA Functions.                      # Use these to get: 
+    data.datasetlist()                        # (1) the list of BEA datasets with APIs
+    data.getParameterList('FixedAssets')      # (2) the parameters of a specific BEA API 
+    data.getParameterValues('NIPA','Year')    # (3) the options of a parameter of a BEA API 
     
     
-    data.NIPA('T10101',verbose=True)['code'])
+    data.NIPA('T10101')
     data.fixedAssets('FAAt101','X')
     data.ITA('BalCurrAcct','Brazil','A','2010')
-    data.IIP(TypeOfInvestment='DebtSecAssets',Component='All',Frequency='All',Year='All')    #NOTE: for IIP, either use All years of All TypeOfInvestment            
+    data.IIP(TypeOfInvestment='DebtSecAssets',Component='All',Frequency='All',Year='All') #NOTE: for IIP, either use All years of All TypeOfInvestment            
     data.IIP('All','All','All','2010')              
     data.GDPbyIndustry('211','1','A','2018')
     
     #RegionalIncome and RegionalOutput were deprecated - use Regional instead.
     data.getRegionalIncome.RegionalIncome()
     data.getRegionalProduct.RegionalProduct()
+    
     data.InputOutput(TableID='56',Year='2010')
     
-    data.InputOutput('All','All'))                       
-    data.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL',verbose=True) #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A
-    data.IntlServTrade('ALL','ALL','ALL','AllCountries','All'))
+    data.InputOutput('All','All')                       
+    data.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL') #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A
+    data.IntlServTrade('ALL','ALL','ALL','AllCountries','All')
 
 
 
