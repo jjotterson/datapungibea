@@ -86,7 +86,9 @@ class data(delegator):
         #TODO: improve loading the drivers 
     
     def __str__(self):
-        return(pd.DataFrame.from_dict(v.DELEGATED_METHODS,orient='index',columns=['Shortcut to Driver']))
+        print(pd.DataFrame.from_dict(self.DELEGATED_METHODS,orient='index',columns=['Shortcut to Driver']))
+        return('\nList of drivers and their shortcuts')
+
     def _clipcode(self):
         try:
             self._lastCalledDriver.clipcode()
@@ -103,6 +105,7 @@ if __name__ == '__main__':
     #TODO: transform this into tests
     
     d = data()
+    print(d)
 
     #METADATA Functions:
     #print(d.datasetlist(verbose=True)['code'])

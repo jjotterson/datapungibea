@@ -29,6 +29,7 @@ def test_datasetlist():
     assert not driver['dataFrame'].empty                      #cleaned up output is not empty
     assert execCode['codeRun']                                #try to execute the code.
     assert execCode['codeOutput'].equals(driver['dataFrame']) #test if the output of the code equals the output of the  
+    #print('datasetlist driver is working (Request OK, data cleaned, can run code snippet, snippet agrees with request)!')
 
 def test_getParameterList():
     driver = dataBea.getParameterList('FixedAssets',verbose=True)  
