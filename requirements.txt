@@ -1,2 +1,5 @@
 pandas
 requests
+pytest
+pytest-html
+pyperclip
