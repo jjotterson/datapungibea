@@ -1,6 +1,6 @@
 import subprocess
 import os
-#from ..utils import getResourcePath
+from datapungibea.utils import getUserSettings
 
 
 def runTests(outputPath='',testsPath='',verbose = True):
@@ -8,7 +8,11 @@ def runTests(outputPath='',testsPath='',verbose = True):
        testsPath =  os.path.dirname(os.path.abspath(__file__)).replace("\\","/")
        print('**************************** \nWill run tests in: ' + testsPath)
     if not outputPath:
-        outputPath = "C:/"
+        try:
+            settingsFile = getUserSettings()
+            outputPath = settingsFile['TestsOutputPath']
+        except:
+            print("Could not load TestOutputPath from user settings.  Perhaps run util.setTestFolder( FilePath )  ")
     subprocess.Popen('pytest ' + testsPath + ' --html='+outputPath+'datapungibea_Tests.html --self-contained-html')
     if verbose:
         print('Tests will be saved in '+outputPath+'datapungibea_Tests.html \n****************************')
