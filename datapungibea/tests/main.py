@@ -21,7 +21,7 @@ def runTests(outputPath='',testsPath='',verbose = True):
 if __name__ == '__main__':
     from sys import argv    
     import subprocess
-    import os
+    import os 
 
     runTests()
     #print(os.path.dirname(os.path.realpath(__file__)))
