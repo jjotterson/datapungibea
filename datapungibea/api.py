@@ -113,7 +113,7 @@ if __name__ == '__main__':
     #print(d.getParameterValues('NIPA','Year',verbose=True))
 
     #print(d.NIPA('T10101',verbose=True)['code'])
-
+    print(d.NIPA('T10903'))
     #print(d.fixedAssets('FAAt101','X'))
 
     #print(d.ITA('BalCurrAcct','Brazil','A','2010'))
@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     #print(d.InputOutput(TableID='56',Year='2010'))                       
     #print(d.InputOutput('All','All'))                       
-    print(d.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL',verbose=True)) #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A TODO: email BEA
+    #print(d.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL',verbose=True)) #NOTE: PDF and query of getParameterValues say Frequency = Q, but actually it's A TODO: email BEA
     #print(d.IntlServTrade('ALL','ALL','ALL','AllCountries','All')) 
     
     #print(d.Regional('00000','1','SAGDP5N', '2015,2016')) 

@@ -181,7 +181,7 @@ class getNIPA():
         
         if outputFormat == "tablePretty":
             df_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])
-            df_output['DataValue'] = pd.to_numeric(df_output['DataValue'])
+            df_output['DataValue'] = pd.to_numeric(df_output['DataValue'].apply(lambda x: x.replace(',','')))
             
             meta = df_output.drop(['DataValue', 'TimePeriod'], axis=1).drop_duplicates()
             meta = meta.set_index(['LineNumber', 'SeriesCode', 'LineDescription']).reset_index()
@@ -193,7 +193,7 @@ class getNIPA():
                         
             #update the code string:
             self._cleanCode = self._cleanCode + "\ndf_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])  \n" 
-            self._cleanCode = self._cleanCode + "df_output['DataValue'] = pd.to_numeric(df_output['DataValue'])  \n"  
+            self._cleanCode = self._cleanCode + "df_output['DataValue'] = pd.to_numeric(df_output['DataValue'].apply(lambda x: x.replace(',','')))  \n"  
             self._cleanCode = self._cleanCode + "df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]  \n"   
             self._cleanCode = self._cleanCode + "df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first') \n" 
             
@@ -423,7 +423,7 @@ class getMNE():
         
         if outputFormat == "tablePretty":
             df_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])
-            df_output['DataValue'] = pd.to_numeric(df_output['DataValue'])
+            df_output['DataValue'] = pd.to_numeric(df_output['DataValue'].apply(lambda x: x.replace(',','')))
             
             meta = df_output.drop(['DataValue', 'TimePeriod'], axis=1).drop_duplicates()
             meta = meta.set_index(['LineNumber', 'SeriesCode', 'LineDescription']).reset_index()
@@ -432,6 +432,12 @@ class getMNE():
             df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
             
             output = {'dataFrame':df_output,'metadata':meta}
+            
+            #update the code string:
+            self._cleanCode = self._cleanCode + "\ndf_output['LineNumber'] = pd.to_numeric(df_output['LineNumber'])  \n" 
+            self._cleanCode = self._cleanCode + "df_output['DataValue'] = pd.to_numeric(df_output['DataValue'].apply(lambda x: x.replace(',','')))  \n"  
+            self._cleanCode = self._cleanCode + "df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]  \n"   
+            self._cleanCode = self._cleanCode + "df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first') \n" 
             
         return(output)
      
