@@ -47,24 +47,64 @@ def urlNIPAHistQYVintage(
         if aux != None:
             links.append(aux.get('href'))
         else:
-            print('Could not find link of ')
-            print(aux)
+            pass
+            
     
     
     #NOTE: maybe the most stable way is to work 
     #df['href'] = [np.where(tag.has_attr('href'),tag.get('href'),"no link") for tag in tb.find_all('a')]
-
+    
     dfUrlQYVintage['vintageLink'] = links
     dfUrlQYVintage['vintageLink'] = dfUrlQYVintage['vintageLink'].apply( lambda x: (histUrl+x).replace(" ", replaceSpaceWith) )  #appends the main url bc the link given misses this part
     
     return( dfUrlQYVintage )
 
 
+def urlNIPAHistQYVintageMainOrUnderlSection( 
+          LineOfdfUrlQYVintage,                    #a line of the table output of  urlNIPAHistQYVintage
+          beaUrl = 'https://apps.bea.gov/'      
+    ):
+    '''
+       From the url of quarter year vintage data (see urlNIPAHistQYVintage) make a table of the url of the 
+        quarter year vintage type (main/underlying etc) and section
+       The output urls point to excel tables.        
+    '''  
+       
+    source = urllib.request.urlopen( LineOfdfUrlQYVintage['vintageLink'] ).read()
+    soup   = bs.BeautifulSoup( source, 'lxml' )
+    htable = soup.body.find_all('table')
+    
+    outValues = []
+    for table in htable: #this will skip tables that don't have headings
+      try: 
+        dftab =  pd.read_html( str(table) , header = 1 )[0]
+        auxlink = list( map( lambda x: x.get('href'), table.find_all('a') ))
+        #links.append( [auxlink] )
+        dftab['excelLink'] = list(map(lambda x: beaUrl+x ,auxlink))    #here replace " " with %20
+        if not dftab.empty:
+          for key in LineOfdfUrlQYVintage: 
+              dftab[key] = LineOfdfUrlQYVintage[key] 
+          outValues.append(dftab)
+      except:
+        pass
+     
+    if len(outValues) == 3:      #Varies a lot, some years have three tables (main, FA / Millions, underlying, other years 1 (main)                                             
+      output = dict(zip( ['main','FAorMillions','underlying'], outValues ))
+    elif len(outValues) == 2:
+      output = dict(zip( ['main','underlying'], outValues ))
+    else:
+      output = dict(zip( ['main'], outValues ))
+    
+    return(output)
+
+
+
 
 if __name__ == '__main__':
 
-    print(urlNIPAHistQYVintage( ))
-
+    listTables = urlNIPAHistQYVintage( )
+    urlData = urlNIPAHistQYVintageMainOrUnderlSection( listTables.iloc[0] )
+    print(urlData)
 
 
 
