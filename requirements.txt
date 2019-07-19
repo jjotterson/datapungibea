@@ -5,3 +5,4 @@ pytest-html
 pyperclip
 lxml
 beautifulsoup4
+html5lib

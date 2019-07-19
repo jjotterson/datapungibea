@@ -113,7 +113,7 @@ if __name__ == '__main__':
     #print(d.getParameterValues('NIPA','Year',verbose=True))
 
     #print(d.NIPA('T10101',verbose=True)['code'])
-    print(d.NIPA('T10903'))
+    print(d.NIPA('T10101'))
     #print(d.fixedAssets('FAAt101','X'))
 
     #print(d.ITA('BalCurrAcct','Brazil','A','2010'))

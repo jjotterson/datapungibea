@@ -3,6 +3,7 @@ import numpy as np               #
 import requests as rq            # get json
 import bs4 as bs                 # scraping websites
 import urllib.request            # work/connect to url    
+import html5lib
 import re                        # regular expression
 from datetime import datetime
 import json
@@ -77,16 +78,17 @@ def urlNIPAHistQYVintageMainOrUnderlSection(
     outValues = []
     for table in htable: #this will skip tables that don't have headings
       try: 
-        dftab =  pd.read_html( str(table) , header = 1 )[0]
+        dftab =  pd.read_html( str(table) , header = 0 )[0]
         auxlink = list( map( lambda x: x.get('href'), table.find_all('a') ))
         #links.append( [auxlink] )
         dftab['excelLink'] = list(map(lambda x: beaUrl+x ,auxlink))    #here replace " " with %20
         if not dftab.empty:
-          for key in LineOfdfUrlQYVintage: 
-              dftab[key] = LineOfdfUrlQYVintage[key] 
+          for key, entry in LineOfdfUrlQYVintage.items(): 
+              dftab[key] = entry
           outValues.append(dftab)
       except:
         pass
+    
      
     if len(outValues) == 3:      #Varies a lot, some years have three tables (main, FA / Millions, underlying, other years 1 (main)                                             
       output = dict(zip( ['main','FAorMillions','underlying'], outValues ))
@@ -103,6 +105,7 @@ def urlNIPAHistQYVintageMainOrUnderlSection(
 if __name__ == '__main__':
 
     listTables = urlNIPAHistQYVintage( )
+    print(listTables)
     urlData = urlNIPAHistQYVintageMainOrUnderlSection( listTables.iloc[0] )
     print(urlData)
 
