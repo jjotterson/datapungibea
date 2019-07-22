@@ -4,6 +4,7 @@ import json
 from copy import deepcopy
 import pyperclip
 from datapungibea import generalSettings 
+from datapungibea import vintage
 
 
 # (1) Auxiliary functions ######################################################
@@ -1045,6 +1046,61 @@ class getRegional():
         }]
 
 
+class getNIPAVintageTables():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          driver of list of NIPA vintage tables
+        '''
+        #TODO: need to put a default url location
+        #self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
+        #self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def NIPAVintageTables(self,verbose=False):
+        '''
+            Returns the list of NIPA vintage tables containing: 
+             - the year/Quarter of the release, 
+             - their revision (vintage): third, second, or advance
+             - the release date
+             - the link to the data
+            The output is a pandas table.  There are no inputs, besides the url of the homepage with the data given by default.
+        '''
+        # TODO: 
+        listTables   = vintage.urlNIPAHistQYVintage( )  
+        output       = self._cleanOutput(listTables) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['code']    = self.getCode() #TODO: write code as method in class
+           output['request'] = "None"
+           self._lastLoad    = output
+           return(output)       
+    
+    def _cleanOutput(self,listTables):
+        #TODO: break year/quarter in first column into year and quarter columns
+        df_output =  listTables
+        
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _getCode(self):
+        code = "to be written"
+        return(code)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"NIPAVintageTables",
+            "method"     :"getNIPAVintageTables",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
+
+
 
 if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA
@@ -1056,10 +1112,13 @@ if __name__ == '__main__':
     #print(v.NIPA('T10101',verbose=True))
     ##print(v._lastLoad['code'])
 
-    from datapungibea.drivers import getGetParameterList #getDatasetlist
-    v = getGetParameterList()
-    print(v.getParameterList('NIPA',verbose = True)['code'])
+    #from datapungibea.drivers import getGetParameterList #getDatasetlist
+    #v = getGetParameterList()
+    #print(v.getParameterList('NIPA',verbose = True)['code'])
+    #
+    #from datapungibea.drivers import getGetParameterValues #getDatasetlist
+    #v = getGetParameterValues()
+    #print(v.getParameterValues('NIPA','TableID')) 
 
-    from datapungibea.drivers import getGetParameterValues #getDatasetlist
-    v = getGetParameterValues()
-    print(v.getParameterValues('NIPA','TableID'))
+    listTables = vintage.urlNIPAHistQYVintage( )
+    print(listTables)    

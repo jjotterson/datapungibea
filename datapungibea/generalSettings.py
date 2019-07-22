@@ -193,6 +193,11 @@ def getPackageMetadata():
              "method"     :"Regional",   
              "params"     :{"GeoFips"   :"","LineCode"  :"","TableName" :"", "Year":""}, #Parameters and default options.
             },                          
+            {
+             "displayName":"NIPA Vintage Tbl",
+             "method"     :"NIPAVintageTables",   
+             "params"     :{}, #Parameters and default options.
+            },                          
           ],
      }  
     

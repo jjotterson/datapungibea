@@ -62,6 +62,7 @@ class data(delegator):
         'getUnderlyingGDPbyIndustry' : ['UnderlyingGDPbyIndustry'],
         'getIntlServTrade'           : ['IntlServTrade'],
         'getRegional'                : ['Regional'],
+        'getNIPAVintageTables'       : ['NIPAVintageTables'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
@@ -83,6 +84,7 @@ class data(delegator):
         self.getUnderlyingGDPbyIndustry    = drivers.getUnderlyingGDPbyIndustry(baseRequest = self.__connectInfo.baseRequest)
         self.getIntlServTrade              = drivers.getIntlServTrade(baseRequest = self.__connectInfo.baseRequest)
         self.getRegional                   = drivers.getRegional(baseRequest = self.__connectInfo.baseRequest)
+        self.getNIPAVintageTables          = drivers.getNIPAVintageTables(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
     
     def __str__(self):
@@ -136,3 +138,4 @@ if __name__ == '__main__':
 
     #print('Regional data test')
     #print(d.Regional('00000','1','SAGDP5N', 'All')) 
+    print(d.NIPAVintageTables())

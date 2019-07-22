@@ -100,6 +100,63 @@ def urlNIPAHistQYVintageMainOrUnderlSection(
     return(output)
 
 
+def getAllLinksToHistTables(readSaved = False):
+    '''
+      Concatenate the tables of the excel data urls.
+       
+      If readSaved = True, will read the pre-saved data
+    '''
+    
+    if readSaved == True:
+      urlOfExcelTables = pd.read_json('I:/Jamesot/Projects/outside/beafullfetchpy/beafullfetchpy/data/NIPAUrlofExcelHistData.json',orient="records")  #TODO: fix this, need to include Manifest.in
+      return( urlOfExcelTables )
+    
+    #Get the location of the datasets with same Q-Y  
+    dfUrlQYVintage = urlNIPAHistQYVintage()
+    
+    #Load all data in the given location
+    urlOfExcelTables = pd.DataFrame()
+    for line in range(len(dfUrlQYVintage)):
+        LineOfdfUrlQYVintage = dfUrlQYVintage.to_dict('records')[line]
+        out = urlNIPAHistQYVintageMainOrUnderlSection( LineOfdfUrlQYVintage )
+        
+        for type in out:
+          out[type]['type'] = type
+        
+        urlOfExcelTables = pd.concat([urlOfExcelTables] + list(out.values()),sort=False)
+       
+    return( urlOfExcelTables )
+
+
+def getNIPADataFromListofLinks( tableOfLinks , asJson = False):
+    '''
+      
+    '''
+    nipaData = tableOfLinks.to_dict(orient='records')
+    count = 0 
+    for row in nipaData:
+        link = row['excelLink']
+        if asJson == False:
+            try:
+                row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None)
+            except:
+                try:
+                    row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None) 
+                except:   
+                    print("cannot read: " + link)
+        else:
+            try:
+                row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None).to_dict(orient='records')
+            except:
+                try: 
+                    row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None).to_dict(orient='records')
+                except:
+                    print('cannot read: ' + link)
+        count = count + 1    
+        if count%250 == 0:
+          print( 'got item '+ str(count) )
+    return( nipaData )
+
 
 
 if __name__ == '__main__':
@@ -108,7 +165,5 @@ if __name__ == '__main__':
     print(listTables)
     urlData = urlNIPAHistQYVintageMainOrUnderlSection( listTables.iloc[0] )
     print(urlData)
-
-
-
-
+    allLinks = getAllLinksToHistTables()
+    print(allLinks)
