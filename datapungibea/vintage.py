@@ -54,8 +54,14 @@ def urlNIPAHistQYVintage(
     
     #NOTE: maybe the most stable way is to work 
     #df['href'] = [np.where(tag.has_attr('href'),tag.get('href'),"no link") for tag in tb.find_all('a')]
-    
-    dfUrlQYVintage['vintageLink'] = links
+    try:
+        dfUrlQYVintage['vintageLink'] = links
+    except:
+        try:
+            dfUrlQYVintage.drop(dfUrlQYVintage.index[0],inplace=True) #merging tables of different sizes - maybe table heading is dupilcated on the table - try dropping it.
+            dfUrlQYVintage['vintageLink'] = links
+        except:
+            print('datapungibea.vintage.py: could not match tables - merging panda tables of different sizes.')
     dfUrlQYVintage['vintageLink'] = dfUrlQYVintage['vintageLink'].apply( lambda x: (histUrl+x).replace(" ", replaceSpaceWith) )  #appends the main url bc the link given misses this part
     
     return( dfUrlQYVintage )

@@ -1073,7 +1073,7 @@ class getNIPAVintageTables():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
-           output['code']    = self.getCode() #TODO: write code as method in class
+           output['code']    = self._getCode() #TODO: write code as method in class
            output['request'] = "None"
            self._lastLoad    = output
            return(output)       
@@ -1119,6 +1119,9 @@ if __name__ == '__main__':
     #from datapungibea.drivers import getGetParameterValues #getDatasetlist
     #v = getGetParameterValues()
     #print(v.getParameterValues('NIPA','TableID')) 
-
-    listTables = vintage.urlNIPAHistQYVintage( )
-    print(listTables)    
+    
+    from datapungibea.drivers import getNIPAVintageTables
+    v = getNIPAVintageTables()
+    print(v.NIPAVintageTables())
+    #listTables = vintage.urlNIPAHistQYVintage( )
+    #print(listTables)    
