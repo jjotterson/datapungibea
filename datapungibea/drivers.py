@@ -1073,8 +1073,8 @@ class getNIPAVintageTables():
             self._lastLoad = output['dataFrame']
             return(output['dataFrame'])
         else:
+           output['request'] = listTables
            output['code']    = self._getCode() #TODO: write code as method in class
-           output['request'] = "None"
            self._lastLoad    = output
            return(output)       
     
