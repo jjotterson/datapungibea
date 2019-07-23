@@ -5,6 +5,7 @@ from copy import deepcopy
 import pyperclip
 from datapungibea import generalSettings 
 from datapungibea import vintage
+from datapungibea import utils
 
 
 # (1) Auxiliary functions ######################################################
@@ -274,6 +275,7 @@ class getGetParameterList():
             "params"     :{},
         }]
 
+
 class getGetParameterValues():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
@@ -339,6 +341,7 @@ class getGetParameterValues():
             "params"     :{},
         }]
 
+
 class getMNE():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
@@ -394,7 +397,6 @@ class getMNE():
         query['params'].update({ "GetFootnotes"		       :  GetFootnotes		     })
         query['params'].update({ "Investment"			   :  Investment			 })
         query['params'].update({ "ParentInvestment"        :  ParentInvestment	     })
-
         query['params'].update(payload)
         
         # TODO: try loading different frenquencies if no return
@@ -601,6 +603,8 @@ class getITA():
             "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
             "params"     :{},
         }]
+
+
 class getIIP():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
@@ -669,6 +673,7 @@ class getIIP():
             "method"     :"GetParameterList",   #Name of driver main function - run with getattr(data,'datasetlist')()
             "params"     :{},
         }]
+
 
 class getGDPbyIndustry():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
@@ -1081,7 +1086,10 @@ class getNIPAVintageTables():
     def _cleanOutput(self,listTables):
         #TODO: break year/quarter in first column into year and quarter columns
         df_output =  listTables
-        
+        df_output['year']    = df_output['yearQuarter'].apply(lambda x: x.split(',')[0].strip())
+        df_output['quarter'] = df_output['yearQuarter'].apply(lambda x: x.split(',')[1].strip())
+        df_output.drop('yearQuarter',axis=1,inplace=True)
+        df_output['releaseDate'] = pd.to_datetime(df_output['releaseDate'],errors='ignore')
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -1100,6 +1108,69 @@ class getNIPAVintageTables():
             "params"     :{},
         }]
 
+
+class getNIPAVintageTablesLocations():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          driver of list of NIPA vintage tables
+        '''
+        #TODO: need to put a default url location
+        #self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
+        #self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}  #data stored here to asist other function as clipboard
+    
+    def NIPAVintageTablesLocations(self,verbose=False):
+        '''
+          Returns the location of the datasets given conditions.
+        '''
+        # TODO: 
+        listTables   = vintage.urlNIPAHistQYVintage( )  
+        output       = self._cleanOutput(listTables) #a dict of a df or df and meta (tablePretty)
+        
+        if verbose == False:
+            self._lastLoad = output['dataFrame']
+            return(output['dataFrame'])
+        else:
+           output['request'] = listTables
+           output['code']    = self._getCode() #TODO: write code as method in class
+           self._lastLoad    = output
+           return(output)       
+    
+    def _getVintageURLOfQYRelease(self):
+        self._dataLocationOfQYRelease = getNIPAVintageTables().NIPAVintageTables()
+    
+    def _getURLsInQYRelease(self,tableLine):
+        self._urlsInQYRelease = vintage.urlNIPAHistQYVintageMainOrUnderlSection( tableLine )
+        df_output = pd.DataFrame()
+        for key,table in self._urlsInQYRelease.items():
+            table.insert(0,'type',key)
+            df_output = pd.concat([df_output, table  ])
+        return(df_output)
+    
+    def _cleanOutput(self,listTables):
+        #TODO: break year/quarter in first column into year and quarter columns
+        df_output =  listTables
+        df_output['year']    = df_output['yearQuarter'].apply(lambda x: x.split(',')[0].strip())
+        df_output['quarter'] = df_output['yearQuarter'].apply(lambda x: x.split(',')[1].strip())
+        df_output.drop('yearQuarter',axis=1,inplace=True)
+        df_output['releaseDate'] = pd.to_datetime(df_output['releaseDate'],errors='ignore')
+        output = {'dataFrame':df_output}
+                    
+        return(output)
+      
+    def clipcode(self):
+        _clipcode(self)
+    
+    def _getCode(self):
+        code = "to be written"
+        return(code)
+    
+    def _driverMetadata(self):
+        self.metadata =     [{
+            "displayName":"NIPAVintageTables",
+            "method"     :"getNIPAVintageTables",   #Name of driver main function - run with getattr(data,'datasetlist')()
+            "params"     :{},
+        }]
 
 
 if __name__ == '__main__':
@@ -1120,8 +1191,14 @@ if __name__ == '__main__':
     #v = getGetParameterValues()
     #print(v.getParameterValues('NIPA','TableID')) 
     
-    from datapungibea.drivers import getNIPAVintageTables
-    v = getNIPAVintageTables()
-    print(v.NIPAVintageTables())
+    #from datapungibea.drivers import getNIPAVintageTables
+    #v = getNIPAVintageTables()
+    #print(v.NIPAVintageTables())
     #listTables = vintage.urlNIPAHistQYVintage( )
     #print(listTables)    
+
+    from datapungibea.drivers import  *
+    v = getNIPAVintageTablesLocations()
+    v._getVintageURLOfQYRelease()  #loeads data locs 
+    tableLine = v._dataLocationOfQYRelease.iloc[0]
+    print(v._getURLsInQYRelease(tableLine))

@@ -166,7 +166,7 @@ def getNIPADataFromListofLinks( tableOfLinks , asJson = False):
 
 
 if __name__ == '__main__':
-
+    
     listTables = urlNIPAHistQYVintage( )
     print(listTables)
     urlData = urlNIPAHistQYVintageMainOrUnderlSection( listTables.iloc[0] )
