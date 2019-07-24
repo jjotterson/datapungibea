@@ -146,18 +146,12 @@ def getNIPADataFromListofLinks( tableOfLinks , asJson = False):
             try:
                 row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None)
             except:
-                try:
-                    row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None) 
-                except:   
-                    print("cannot read: " + link)
+                print("cannot read: " + link)
         else:
             try:
                 row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None).to_dict(orient='records')
             except:
-                try: 
-                    row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None).to_dict(orient='records')
-                except:
-                    print('cannot read: ' + link)
+                print('cannot read: ' + link)
         count = count + 1    
         if count%250 == 0:
           print( 'got item '+ str(count) )
@@ -173,3 +167,5 @@ if __name__ == '__main__':
     print(urlData)
     allLinks = getAllLinksToHistTables()
     print(allLinks)
+
+    

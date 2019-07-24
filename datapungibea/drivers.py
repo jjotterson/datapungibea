@@ -4,7 +4,7 @@ import json
 from copy import deepcopy
 import pyperclip
 from datapungibea import generalSettings 
-from datapungibea import vintage
+from datapungibea import vintage as vintageFns
 from datapungibea import utils
 
 
@@ -1071,7 +1071,7 @@ class getNIPAVintageTables():
             The output is a pandas table.  There are no inputs, besides the url of the homepage with the data given by default.
         '''
         # TODO: 
-        listTables   = vintage.urlNIPAHistQYVintage( )  
+        listTables   = vintageFns.urlNIPAHistQYVintage( )  
         output       = self._cleanOutput(listTables) #a dict of a df or df and meta (tablePretty)
         
         if verbose == False:
@@ -1117,35 +1117,85 @@ class getNIPAVintageTablesLocations():
         #TODO: need to put a default url location
         #self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         #self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
-        self._lastLoad    = {}  #data stored here to asist other function as clipboard
-    
-    def NIPAVintageTablesLocations(self,verbose=False):
+        self._lastLoad    = {}                  #data stored here to asist other function as clipboard
+        self._urlsOfQYRelease      = pd.DataFrame()  #a table of the url of data with same QY release.  Will load via _getUrlsOfQYRelease if empty
+        self._urlsOfQueryQYRelease = pd.DataFrame()  #table of urls of data with same QY release restricted to query of interest.  Load via _queryUrlsOfQYRelease
+        self._urlsOfExcelTables    = pd.DataFrame()  #location of Excel tables of interest: type, Title, QY and ReleaseDate.  Load with _getUrlsOfData
+        
+    def NIPAVintageTablesLocations(self,type = 'main', Title = '',year='',quarter='',vintage = '',releaseDate='',reload=False,verbose=False):
         '''
           Returns the location of the datasets given conditions.
+          - type:  main, underlyning, MilsOfDollars
+          - Title: Section 0, Section 1, ...
+          - vintage: Third, Second, Advance
+          - year: 2019, string or numeric
+          - quarter: Q1,...,Q4
+          - releaseDate: eg '2019-04-05', '04-05-2019', 'Apr-05-2019'  will pick the first release date prior or equal to this.
+          - reload: reloads getting the datatable by QY ReleaseDate
+          - verbose: False just returns a table with all data.  Else, returns cleaned data, code, and returned query
         '''
-        # TODO: 
-        listTables   = vintage.urlNIPAHistQYVintage( )  
-        output       = self._cleanOutput(listTables) #a dict of a df or df and meta (tablePretty)
+        self._getUrlsOfData( type, Title,year,quarter,vintage,releaseDate,reload)  #get the url of excel sheets with data given type, Title etc
         
-        if verbose == False:
-            self._lastLoad = output['dataFrame']
-            return(output['dataFrame'])
-        else:
-           output['request'] = listTables
-           output['code']    = self._getCode() #TODO: write code as method in class
-           self._lastLoad    = output
-           return(output)       
+        self.array_output = vintageFns.getNIPADataFromListofLinks(self._urlsOfExcelTables)   
+        
+        return(self.array_output)  
     
-    def _getVintageURLOfQYRelease(self):
-        self._dataLocationOfQYRelease = getNIPAVintageTables().NIPAVintageTables()
+    def _getUrlsOfQYRelease(self,reload=False):
+        if reload: 
+            self._urlsOfQYRelease = getNIPAVintageTables().NIPAVintageTables()
+        elif self._urlsOfQYRelease.empty:
+            self._urlsOfQYRelease = getNIPAVintageTables().NIPAVintageTables()
+    
+    def _queryUrlsOfQYRelease(self,year='',quarter='',vintage = '',releaseDate='',reload=False):        
+        self._getUrlsOfQYRelease(reload)
+        df_output = self._urlsOfQYRelease.copy()
+        
+        if not year == '':
+            year = str(year)
+            df_output = df_output.loc[df_output['year']==year]
+        
+        if not quarter == '':
+            quarter = quarter.upper()
+            df_output = df_output.loc[df_output['quarter']==quarter]
+        
+        if not vintage =='':
+            vintage = vintage.capitalize()
+            df_output = df_output.loc[df_output['vintage']==vintage]
+        
+        if not releaseDate == '':
+            firstDate = df_output.loc[ df_output['releaseDate'] <= releaseDate]['releaseDate'].max()
+            df_output = df_output.loc[df_output['releaseDate'] == firstDate]
+        
+        self._urlsOfQueryQYRelease = df_output
     
     def _getURLsInQYRelease(self,tableLine):
-        self._urlsInQYRelease = vintage.urlNIPAHistQYVintageMainOrUnderlSection( tableLine )
+        self._urlsInQYRelease = vintageFns.urlNIPAHistQYVintageMainOrUnderlSection( tableLine )
         df_output = pd.DataFrame()
         for key,table in self._urlsInQYRelease.items():
             table.insert(0,'type',key)
             df_output = pd.concat([df_output, table  ])
         return(df_output)
+    
+    def _getUrlsOfData(self,type = 'main', Title = '',year='',quarter='',vintage = '',releaseDate='',reload=False):
+        df_output = pd.DataFrame()
+        
+        #get data the url inside the group with same QY and Release date, 
+        # restrict by the given conditions
+        self._queryUrlsOfQYRelease(year,quarter,vintage,releaseDate,reload)
+        
+        #Get the URLs inside each entry above, these are pointers to Excel files
+        for line in self._urlsOfQueryQYRelease.iterrows():
+            df_output = pd.concat([df_output, self._getURLsInQYRelease( line[1] )  ])    
+        
+        if not type == '':
+            type = type.lower()
+            df_output = df_output.loc[df_output['type']==type]
+        
+        if not Title == '':
+            Title = Title.capitalize()
+            df_output = df_output.loc[df_output['Title']==Title]
+              
+        self._urlsOfExcelTables = df_output
     
     def _cleanOutput(self,listTables):
         #TODO: break year/quarter in first column into year and quarter columns
@@ -1157,6 +1207,11 @@ class getNIPAVintageTablesLocations():
         output = {'dataFrame':df_output}
                     
         return(output)
+    
+    def _cleanExcelQuery(self,arrayData):
+        '''
+           Given an array of dictionaries (array entry contains all data by year, quarter type Title)
+        '''
       
     def clipcode(self):
         _clipcode(self)
@@ -1177,12 +1232,12 @@ if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA
     #v = getNIPA()
     #v.NIPA('T10101')
-    
+      
     #from datapungibea.drivers import getNIPA #getDatasetlist
     #v = getNIPA() #getDatasetlist()
     #print(v.NIPA('T10101',verbose=True))
     ##print(v._lastLoad['code'])
-
+    
     #from datapungibea.drivers import getGetParameterList #getDatasetlist
     #v = getGetParameterList()
     #print(v.getParameterList('NIPA',verbose = True)['code'])
@@ -1194,11 +1249,18 @@ if __name__ == '__main__':
     #from datapungibea.drivers import getNIPAVintageTables
     #v = getNIPAVintageTables()
     #print(v.NIPAVintageTables())
-    #listTables = vintage.urlNIPAHistQYVintage( )
+    #listTables = vintageFns.urlNIPAHistQYVintage( )
     #print(listTables)    
-
+    
     from datapungibea.drivers import  *
-    v = getNIPAVintageTablesLocations()
-    v._getVintageURLOfQYRelease()  #loeads data locs 
-    tableLine = v._dataLocationOfQYRelease.iloc[0]
-    print(v._getURLsInQYRelease(tableLine))
+    v = getNIPAVintageTablesLocations()  
+    #print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
+    #print(v._getUrlsOfData(releaseDate='2019-04-01'))
+    cases = v.NIPAVintageTablesLocations(type = 'main',releaseDate = '2018-03-20')
+    print(cases)
+    #tab = vintageFns.getNIPADataFromListofLinks(cases)
+    array_output = cases
+    array = []
+    for entry in array_output:
+        for sheetName, sheet in entry['data'].items():
+            array.append(  {**entry, **{'sheetName':sheetName,'data':sheet}}   )
