@@ -1236,9 +1236,9 @@ class getNIPAVintageTablesLocations():
                 
                 #clean up the sheet:
                 #(1) delete empty rows (check delete empty cols as well)
-                sheet.dropna(how='all',inplace=True).
+                sheet.dropna(how='all',inplace=True)
                 sheet.reset_index(drop=True)
-
+                
                 #(2) find where data starts 
                 try:
                   rowWithTitles = sheet.index[sheet.iloc[:,0] == 'Line'].min()
@@ -1251,17 +1251,16 @@ class getNIPAVintageTablesLocations():
                 if math.isnan(colTitles[1]):  #TODO: improve this
                     colTitles[1] = 'Variable'
                 if math.isnan(colTitles[2]):
-                    colTitles[2] = 'Code'
-                
-                
+                    colTitles[2] = 'Code'           
                 
                 meta = [sheet.keys()[0]]
                 meta = meta+ list(sheet.iloc[0:rowWithTitles,0] ) 
                 
+                #(4) make table:
+                sheet = sheet.iloc[rowWithTitles+1:].reset_index(drop=True)   
+                sheet.columns = colTitles               
                 
-                
-                
-                clean_array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency}, **{'data':sheet}}   )
+                clean_array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency,'meta':meta}, **{'data':sheet}}   )
         
         return(clean_array)
 
