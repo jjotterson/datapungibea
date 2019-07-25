@@ -1230,37 +1230,40 @@ class getNIPAVintageTablesLocations():
                 sName = sName.split(' ')
                 table = sName[0]
                 try:
-                    frequency = sName[1]
+                    frequency = sName[1]  #covers the case sheetName = 'Contents'
                 except:
                     frequency = ''
                 
                 #clean up the sheet:
-                #(1) delete empty rows (check delete empty cols as well)
+                #(1) delete empty rows and columns (check delete empty cols as well)
                 sheet.dropna(how='all',inplace=True)
+                sheet.dropna(how='all',axis=1,inplace=True)
                 sheet.reset_index(drop=True)
                 
-                #(2) find where data starts 
-                try:
-                  rowWithTitles = sheet.index[sheet.iloc[:,0] == 'Line'].min()
-                except:
-                  rowWithTitles = 5
-                  print('the following sheet might have problems:' + sheetName)
-                
-                #(3) get col titles and metadata
-                colTitles = list(sheet.iloc[rowWithTitles])
-                if math.isnan(colTitles[1]):  #TODO: improve this
-                    colTitles[1] = 'Variable'
-                if math.isnan(colTitles[2]):
-                    colTitles[2] = 'Code'           
-                
-                meta = [sheet.keys()[0]]
-                meta = meta+ list(sheet.iloc[0:rowWithTitles,0] ) 
-                
-                #(4) make table:
-                sheet = sheet.iloc[rowWithTitles+1:].reset_index(drop=True)   
-                sheet.columns = colTitles               
-                
-                clean_array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency,'meta':meta}, **{'data':sheet}}   )
+                #(2) find where data starts; separate data (sheet) from meta
+                meta = []
+                if not table == 'Contents':
+                    try:
+                      rowWithTitles = sheet.index[sheet.iloc[:,0] == 'Line'].min()
+                    except:
+                      rowWithTitles = 5
+                      print('the following sheet might have problems:' + sheetName)
+                    
+                    #(3) get col titles and metadata
+                    colTitles = list(sheet.iloc[rowWithTitles])
+                    if math.isnan(colTitles[1]):  #TODO: improve this
+                        colTitles[1] = 'Variable'
+                    if math.isnan(colTitles[2]):
+                        colTitles[2] = 'Code'           
+                    
+                    meta = [sheet.keys()[0]]
+                    meta = meta+ list(sheet.iloc[0:rowWithTitles,0] ) 
+                    
+                    #(4) make table:
+                    sheet = sheet.iloc[rowWithTitles+1:].reset_index(drop=True)   
+                    sheet.columns = colTitles               
+                    
+                    clean_array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency,'meta':meta}, **{'data':sheet}}   )
         
         return(clean_array)
 
