@@ -6,6 +6,8 @@ import pyperclip
 from datapungibea import generalSettings 
 from datapungibea import vintage as vintageFns
 from datapungibea import utils
+import re
+import math
 
 
 # (1) Auxiliary functions ######################################################
@@ -1138,7 +1140,8 @@ class getNIPAVintageTablesLocations():
         
         self.array_output = vintageFns.getNIPADataFromListofLinks(self._urlsOfExcelTables)   
         
-        return(self.array_output)  
+        self.clean_array = self._cleanExcelQuery(self.array_output)
+        return(self.clean_array)  
     
     def _getUrlsOfQYRelease(self,reload=False):
         if reload: 
@@ -1212,7 +1215,56 @@ class getNIPAVintageTablesLocations():
         '''
            Given an array of dictionaries (array entry contains all data by year, quarter type Title)
         '''
-      
+        clean_array = []
+        for entry in arrayData:
+            for sheetName, sheet in entry['data'].items():
+                sName = re.sub('Qtr','Q',sheetName)
+                sName = re.sub('Quarter','Q',sName)
+                sName = re.sub('Ann','A',    sName)
+                sName = re.sub('Annual','A',  sName)
+                sName = re.sub('A',' A',     sName)
+                sName = re.sub('Q',' Q',     sName)
+                sName = re.sub('_',' ',      sName)
+                sName = re.sub('-',' ',      sName)
+                sName = re.sub(' +', ' ',    sName).strip()
+                sName = sName.split(' ')
+                table = sName[0]
+                try:
+                    frequency = sName[1]
+                except:
+                    frequency = ''
+                
+                #clean up the sheet:
+                #(1) delete empty rows (check delete empty cols as well)
+                sheet.dropna(how='all',inplace=True).
+                sheet.reset_index(drop=True)
+
+                #(2) find where data starts 
+                try:
+                  rowWithTitles = sheet.index[sheet.iloc[:,0] == 'Line'].min()
+                except:
+                  rowWithTitles = 5
+                  print('the following sheet might have problems:' + sheetName)
+                
+                #(3) get col titles and metadata
+                colTitles = list(sheet.iloc[rowWithTitles])
+                if math.isnan(colTitles[1]):  #TODO: improve this
+                    colTitles[1] = 'Variable'
+                if math.isnan(colTitles[2]):
+                    colTitles[2] = 'Code'
+                
+                
+                
+                meta = [sheet.keys()[0]]
+                meta = meta+ list(sheet.iloc[0:rowWithTitles,0] ) 
+                
+                
+                
+                
+                clean_array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency}, **{'data':sheet}}   )
+        
+        return(clean_array)
+
     def clipcode(self):
         _clipcode(self)
     
@@ -1256,11 +1308,28 @@ if __name__ == '__main__':
     v = getNIPAVintageTablesLocations()  
     #print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
     #print(v._getUrlsOfData(releaseDate='2019-04-01'))
-    cases = v.NIPAVintageTablesLocations(type = 'main',releaseDate = '2018-03-20')
+    cases = v.NIPAVintageTablesLocations(type = 'main',Title= 'Section 1',releaseDate = '2018-03-20')
     print(cases)
     #tab = vintageFns.getNIPADataFromListofLinks(cases)
-    array_output = cases
-    array = []
-    for entry in array_output:
-        for sheetName, sheet in entry['data'].items():
-            array.append(  {**entry, **{'sheetName':sheetName,'data':sheet}}   )
+    #array_output = cases
+    #array = []
+    #for entry in array_output:
+    #    for sheetName, sheet in entry['data'].items():
+    #        sName = re.sub('Qtr','Q',sheetName)
+    #        sName = re.sub('Quarter','Q',sName)
+    #        sName = re.sub('Ann','A',    sName)
+    #        sName = re.sub('Annual','A',  sName)
+    #        sName = re.sub('A',' A',     sName)
+    #        sName = re.sub('Q',' Q',     sName)
+    #        sName = re.sub('_',' ',      sName)
+    #        sName = re.sub('-',' ',      sName)
+    #        sName = re.sub(' +', ' ',    sName).strip()
+    #        sName = sName.split(' ')
+    #        table = sName[0]
+    #        try:
+    #            frequency = sName[1]
+    #        except:
+    #            frequency = ''
+    #        
+    #        array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency}, **{'data':sheet}}   )
+    #
