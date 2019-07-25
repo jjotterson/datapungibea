@@ -1238,7 +1238,7 @@ class getNIPAVintageTablesLocations():
                 #(1) delete empty rows and columns (check delete empty cols as well)
                 sheet.dropna(how='all',inplace=True)
                 sheet.dropna(how='all',axis=1,inplace=True)
-                sheet.reset_index(drop=True)
+                sheet.reset_index(drop=True,inplace=True)
                 
                 #(2) find where data starts; separate data (sheet) from meta
                 meta = []
@@ -1252,9 +1252,9 @@ class getNIPAVintageTablesLocations():
                     #(3) get col titles and metadata
                     colTitles = list(sheet.iloc[rowWithTitles])
                     if math.isnan(colTitles[1]):  #TODO: improve this
-                        colTitles[1] = 'Variable'
+                        colTitles[1] = 'LineDescription'
                     if math.isnan(colTitles[2]):
-                        colTitles[2] = 'Code'           
+                        colTitles[2] = 'SeriesCode'           
                     
                     meta = [sheet.keys()[0]]
                     meta = meta+ list(sheet.iloc[0:rowWithTitles,0] ) 
