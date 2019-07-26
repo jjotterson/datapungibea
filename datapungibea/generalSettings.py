@@ -194,12 +194,12 @@ def getPackageMetadata():
              "params"     :{"GeoFips"   :"","LineCode"  :"","TableName" :"", "Year":""}, #Parameters and default options.
             },                          
             {
-             "displayName":"List NIPA Vintage Tbls",
+             "displayName":"NIPA Vintage Tbls List (not API)",
              "method"     :"NIPAVintageTables",   
              "params"     :{}, #Parameters and default options.
             },                          
             {
-             "displayName":"NIPA Vintage Data",
+             "displayName":"NIPA Vintage Data (not API)",
              "method"     :"NIPAVintage",   
              "params"     :{"tableName":'',"frequency":'',"year":'',"quarter":'',"vintage": '',"releaseDate":''}, #Parameters and default options.
             },                          
