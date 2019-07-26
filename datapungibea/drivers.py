@@ -1111,7 +1111,7 @@ class getNIPAVintageTables():
         }]
 
 
-class getNIPAVintageTablesLocations():
+class getNIPAVintage():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
           driver of list of NIPA vintage tables
@@ -1124,9 +1124,9 @@ class getNIPAVintageTablesLocations():
         self._urlsOfQueryQYRelease = pd.DataFrame()  #table of urls of data with same QY release restricted to query of interest.  Load via _queryUrlsOfQYRelease
         self._urlsOfExcelTables    = pd.DataFrame()  #location of Excel tables of interest: type, Title, QY and ReleaseDate.  Load with _getUrlsOfData
         
-    def NIPAVintageTablesLocations(self,type = 'main', Title = '',year='',quarter='',vintage = '',releaseDate='',reload=False,verbose=False):
+    def NIPAVintage(self,tableName='',frequency='',type = 'main', Title = '',year='',quarter='',vintage = '',releaseDate='',reload=False,verbose=False,beaAPIFormat=False):
         '''
-          Returns the location of the datasets given conditions.
+          Returns NIPA vintage tables. 
           - type:  main, underlyning, MilsOfDollars
           - Title: Section 0, Section 1, ...
           - vintage: Third, Second, Advance
@@ -1137,12 +1137,21 @@ class getNIPAVintageTablesLocations():
           - verbose: False just returns a table with all data.  Else, returns cleaned data, code, and returned query
         '''
         self._getUrlsOfData( type, Title,year,quarter,vintage,releaseDate,reload)  #get the url of excel sheets with data given type, Title etc
-        
         self.array_output = vintageFns.getNIPADataFromListofLinks(self._urlsOfExcelTables)   
+        self.clean_array = self._cleanExcelQuery(self.array_output,tableName,frequency,beaAPIFormat)
         
-        self.clean_array = self._cleanExcelQuery(self.array_output)
-        return(self.clean_array)  
-    
+        output = dict()
+        output['dataFrame'] = [ x['Results']['Data'] for x in self.clean_array ]
+        
+        if not verbose:
+            self._lastLoad =  output['dataFrame']
+            return(output['dataFrame'])
+        else:
+            output['code']  = 'none'  #TODO: fix code
+            output['request'] = self.clean_array
+            self._lastLoad = output
+            return(output)
+            
     def _getUrlsOfQYRelease(self,reload=False):
         if reload: 
             self._urlsOfQYRelease = getNIPAVintageTables().NIPAVintageTables()
@@ -1211,62 +1220,34 @@ class getNIPAVintageTablesLocations():
                     
         return(output)
     
-    def _cleanExcelQuery(self,arrayData):
+    def _cleanExcelQuery(self,arrayData,tableName='',frequency='',beaAPIFormat=False):
         '''
            Given an array of dictionaries (array entry contains all data by year, quarter type Title)
         '''
         clean_array = []
         for entry in arrayData:
-            for sheetName, sheet in entry['data'].items():
-                sName = re.sub('Qtr','Q',sheetName)
-                sName = re.sub('Quarter','Q',sName)
-                sName = re.sub('Ann','A',    sName)
-                sName = re.sub('Annual','A',  sName)
-                sName = re.sub('A',' A',     sName)
-                sName = re.sub('Q',' Q',     sName)
-                sName = re.sub('_',' ',      sName)
-                sName = re.sub('-',' ',      sName)
-                sName = re.sub(' +', ' ',    sName).strip()
-                sName = sName.split(' ')
+            baseInfo = {key:val for key, val in entry.items() if not key == 'data'} #data that is not sheet
+            #restrict to cases containing tableName and frequency
+            if tableName == '' and frequency == '':
+                subset = entry['data']
+            else:
+                subset = {key:val for key, val in entry['data'].items() if tableName.lower() in key.lower() and frequency.lower() in key.lower() }
+            subset  = vintageFns.formatBeaRaw( subset )
+            for sheetName, sheet in subset.items():
+                sName = sheetName.split('_')
                 table = sName[0]
                 try:
                     frequency = sName[1]  #covers the case sheetName = 'Contents'
                 except:
-                    frequency = ''
-                
-                #clean up the sheet:
-                #(1) delete empty rows and columns (check delete empty cols as well)
-                sheet.dropna(how='all',inplace=True)
-                sheet.dropna(how='all',axis=1,inplace=True)
-                sheet.reset_index(drop=True,inplace=True)
-                
-                #(2) find where data starts; separate data (sheet) from meta
-                meta = []
-                if not table == 'Contents':
-                    try:
-                      rowWithTitles = sheet.index[sheet.iloc[:,0] == 'Line'].min()
-                    except:
-                      rowWithTitles = 5
-                      print('the following sheet might have problems:' + sheetName)
-                    
-                    #(3) get col titles and metadata
-                    colTitles = list(sheet.iloc[rowWithTitles])
-                    if math.isnan(colTitles[1]):  #TODO: improve this
-                        colTitles[1] = 'LineDescription'
-                    if math.isnan(colTitles[2]):
-                        colTitles[2] = 'SeriesCode'           
-                    
-                    meta = [sheet.keys()[0]]
-                    meta = meta+ list(sheet.iloc[0:rowWithTitles,0] ) 
-                    
-                    #(4) make table:
-                    sheet = sheet.iloc[rowWithTitles+1:].reset_index(drop=True)   
-                    sheet.columns = colTitles               
-                    
-                    clean_array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency,'meta':meta}, **{'data':sheet}}   )
+                    frequency = ''                 
+                #add basic info to the pandas table:
+                sheet['Data'].insert(0,'tableName',table)
+                sheet['Data'].insert(1,'yearQuarterVintage','-'.join([entry['year'] , entry['quarter'],entry['vintage']]))
+                sheet['Data'].insert(2,'releaseDate',entry['releaseDate'].strftime("%Y-%m-%d"))
+                clean_array.append(  {**baseInfo, **{'sheetName':sheetName,'tableID':table,'frequency':frequency}, **{'Results':sheet}}   )
         
         return(clean_array)
-
+    
     def clipcode(self):
         _clipcode(self)
     
@@ -1307,31 +1288,9 @@ if __name__ == '__main__':
     #print(listTables)    
     
     from datapungibea.drivers import  *
-    v = getNIPAVintageTablesLocations()  
+    v = getNIPAVintage()  
     #print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
     #print(v._getUrlsOfData(releaseDate='2019-04-01'))
-    cases = v.NIPAVintageTablesLocations(type = 'main',Title= 'Section 1',releaseDate = '2018-03-20')
+    cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
     print(cases)
-    #tab = vintageFns.getNIPADataFromListofLinks(cases)
-    #array_output = cases
-    #array = []
-    #for entry in array_output:
-    #    for sheetName, sheet in entry['data'].items():
-    #        sName = re.sub('Qtr','Q',sheetName)
-    #        sName = re.sub('Quarter','Q',sName)
-    #        sName = re.sub('Ann','A',    sName)
-    #        sName = re.sub('Annual','A',  sName)
-    #        sName = re.sub('A',' A',     sName)
-    #        sName = re.sub('Q',' Q',     sName)
-    #        sName = re.sub('_',' ',      sName)
-    #        sName = re.sub('-',' ',      sName)
-    #        sName = re.sub(' +', ' ',    sName).strip()
-    #        sName = sName.split(' ')
-    #        table = sName[0]
-    #        try:
-    #            frequency = sName[1]
-    #        except:
-    #            frequency = ''
-    #        
-    #        array.append(  {**entry, **{'sheetName':sheetName,'table':table,'frequency':frequency}, **{'data':sheet}}   )
-    #
+    

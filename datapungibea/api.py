@@ -63,6 +63,7 @@ class data(delegator):
         'getIntlServTrade'           : ['IntlServTrade'],
         'getRegional'                : ['Regional'],
         'getNIPAVintageTables'       : ['NIPAVintageTables'],
+        'getNIPAVintage'             : ['NIPAVintage'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
@@ -85,6 +86,7 @@ class data(delegator):
         self.getIntlServTrade              = drivers.getIntlServTrade(baseRequest = self.__connectInfo.baseRequest)
         self.getRegional                   = drivers.getRegional(baseRequest = self.__connectInfo.baseRequest)
         self.getNIPAVintageTables          = drivers.getNIPAVintageTables(baseRequest = self.__connectInfo.baseRequest)
+        self.getNIPAVintage                = drivers.getNIPAVintage(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
     
     def __str__(self):
