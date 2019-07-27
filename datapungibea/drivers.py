@@ -5,6 +5,7 @@ from copy import deepcopy
 import pyperclip
 import math
 import re
+from datetime import datetime
 from datapungibea import generalSettings 
 from datapungibea import vintage as vintageFns
 from datapungibea import utils
@@ -1274,7 +1275,8 @@ class getNIPASummary():
         self._lastLoad    = {}                  #data stored here to asist other function as clipboard
         self.cfgSummary = CFGnipaSummary.tabparams
         self.queryNIPA  = getNIPA(baseRequest,connectionParameters,userSettings)
-            
+        self.queryNIPAVintage = getNIPAVintage()
+                
     def NIPASummary(self,year,frequency,verbose=True):  
         df_array = self._getAccountTable(year,frequency)
         
@@ -1283,23 +1285,51 @@ class getNIPASummary():
     def _getAccountTable(self,year,frequency):
         array_output = deepcopy(self.cfgSummary)  #use the structure of cfgSummary to output
         for acct in self.cfgSummary:
-            if not acct == 'Account 2': 
-                print(acct)
-                query = self.cfgSummary[acct]['source']
-                query.update({'frequency':frequency,'year':year})
+            print(acct)
+            query = self.cfgSummary[acct]['source']
+            if acct == 'Account 2':
+                frequency = 'A'  #Account 2 only have annual data
+            query.update({'frequency':frequency,'year':year})
+            try:
                 array_output[acct]['source'] = self._getAccountUseOrSource(**query)
-                print(array_output[acct]['source'])
-                query = self.cfgSummary[acct]['uses']
-                query.update({'frequency':frequency,'year':year})
-                array_output[acct]['uses'] = self._getAccountUseOrSource(**query)
-                print(array_output[acct]['uses'])                
-            else:
+            except:
+                print( 'Could not find information of ' + acct +' on current NIPA.  Trying to query historical annual data.' )
+                array_output[acct]['source'] = self.getAccountUseOrSourceVintage(
                 pass
+            print(array_output[acct]['source'])
+            query = self.cfgSummary[acct]['uses']
+            query.update({'frequency':frequency,'year':year})
+            try:
+                array_output[acct]['uses'] = self._getAccountUseOrSource(**query)
+            except:
+                print( 'Could not find information of ' + acct +' on current NIPA.  Trying to query historical annual data.' )
+                array_output[acct]['source'] = self.getAccountUseOrSourceVintage(
+                pass
+            print(array_output[acct]['uses'])                
+            except:
         return(array_output)
     
     def _getAccountUseOrSource(self,tableName,year,frequency,tableEntries):
         readTable = self.queryNIPA.NIPA(tableName = tableName, frequency = frequency, year = year )
         readTable.reset_index(inplace=True)
+        restrict = pd.DataFrame(tableEntries)
+        output = pd.merge(restrict,readTable,on=['SeriesCode','SeriesCode'])
+        output['LineDescription'] = output.apply(lambda x: x['indentation']*'-' + x['LineDescription'],axis=1)
+        output.drop(['indentation','LineNumber'],axis=1,inplace=True)
+        output.set_index(['LineDescription','SeriesCode'],inplace=True) #NOTE: this is just for sorting column order
+        output.reset_index(inplace=True)
+        return(output)
+
+    def _getAccountUseOrSourceVintage(self,tableName,year,frequency,tableEntries,Title ='Section 1',releaseDate=datetime.now()):
+        '''
+          Try to get vintage data (try annual). Default is to check the last available vintage datset from current date.
+        '''
+        readTable = self.queryNIPAVintage.NIPAVintage(tableName = tableName, frequency = frequency, Title = Title, releaseDate = releaseDate )
+        readTable = readTable[0]
+        year = str(min(year,int(readTable.columns[-1]))) #either use: the queried year or the last available year in dateset.  The smallest of these. 
+        cols = [ 'Line', 'LineDescription', 'SeriesCode',year ] 
+        readTable = readTable[cols]
+        #readTable.reset_index(inplace=True)
         restrict = pd.DataFrame(tableEntries)
         output = pd.merge(restrict,readTable,on=['SeriesCode','SeriesCode'])
         output['LineDescription'] = output.apply(lambda x: x['indentation']*'-' + x['LineDescription'],axis=1)
