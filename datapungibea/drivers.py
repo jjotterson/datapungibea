@@ -3,11 +3,12 @@ import requests
 import json
 from copy import deepcopy
 import pyperclip
+import math
+import re
 from datapungibea import generalSettings 
 from datapungibea import vintage as vintageFns
 from datapungibea import utils
-import re
-import math
+from datapungibea import CFGnipaSummary
 
 
 # (1) Auxiliary functions ######################################################
@@ -1263,6 +1264,51 @@ class getNIPAVintage():
         }]
 
 
+class getNIPASummary():
+    def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
+        '''
+          driver of list of NIPA Account Summary tables
+        '''
+        self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
+        self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
+        self._lastLoad    = {}                  #data stored here to asist other function as clipboard
+        self.cfgSummary = CFGnipaSummary.tabparams
+        self.queryNIPA  = getNIPA(baseRequest,connectionParameters,userSettings)
+            
+    def NIPASummary(self,year,frequency,verbose=True):  
+        df_array = self._getAccountTable(year,frequency)
+        
+        return(df_array)
+    
+    def _getAccountTable(self,year,frequency):
+        array_output = deepcopy(self.cfgSummary)  #use the structure of cfgSummary to output
+        for acct in self.cfgSummary:
+            if not acct == 'Account 2': 
+                print(acct)
+                query = self.cfgSummary[acct]['source']
+                query.update({'frequency':frequency,'year':year})
+                array_output[acct]['source'] = self._getAccountUseOrSource(**query)
+                print(array_output[acct]['source'])
+                query = self.cfgSummary[acct]['uses']
+                query.update({'frequency':frequency,'year':year})
+                array_output[acct]['uses'] = self._getAccountUseOrSource(**query)
+                print(array_output[acct]['uses'])                
+            else:
+                pass
+        return(array_output)
+    
+    def _getAccountUseOrSource(self,tableName,year,frequency,tableEntries):
+        readTable = self.queryNIPA.NIPA(tableName = tableName, frequency = frequency, year = year )
+        readTable.reset_index(inplace=True)
+        restrict = pd.DataFrame(tableEntries)
+        output = pd.merge(restrict,readTable,on=['SeriesCode','SeriesCode'])
+        output['LineDescription'] = output.apply(lambda x: x['indentation']*'-' + x['LineDescription'],axis=1)
+        output.drop(['indentation','LineNumber'],axis=1,inplace=True)
+        output.set_index(['LineDescription','SeriesCode'],inplace=True) #NOTE: this is just for sorting column order
+        output.reset_index(inplace=True)
+        return(output)
+    
+
 if __name__ == '__main__':
     #from datapungibea.drivers import getNIPA
     #v = getNIPA()
@@ -1287,10 +1333,33 @@ if __name__ == '__main__':
     #listTables = vintageFns.urlNIPAHistQYVintage( )
     #print(listTables)    
     
-    from datapungibea.drivers import  *
-    v = getNIPAVintage()  
-    #print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
-    #print(v._getUrlsOfData(releaseDate='2019-04-01'))
-    cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
-    print(cases)
+    #from datapungibea.drivers import  *
+    #v = getNIPAVintage()  
+    ##print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
+    ##print(v._getUrlsOfData(releaseDate='2019-04-01'))
+    #cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
+    #print(cases)
     
+    #cfgSummary = CFGnipaSummary.tabparams
+    #frequency  = 'Q'
+    #queryNIPA  = getNIPA()
+    #
+    #def _getAccountUseOrSource(tableName,frequency,year,tableEntries):
+    #    readTable = queryNIPA.NIPA(tableName = tableName, frequency = frequency, year = year )
+    #    readTable.reset_index(inplace=True)
+    #    restrict = pd.DataFrame(query['tableEntries'])
+    #    output = pd.merge(restrict,readTable,on=['SeriesCode','SeriesCode'])
+    #    output['LineDescription'] = output.apply(lambda x: x['indentation']*'-' + x['LineDescription'],axis=1)
+    #    output.drop(['indentation','LineNumber'],axis=1,inplace=True)
+    #    output.set_index(['LineDescription','SeriesCode'],inplace=True) #NOTE: this is just for sorting column order
+    #    output.reset_index(inplace=True)
+    #    return(output)
+    #
+    #def _getAccountTable(frequency,year,config)
+    #query = cfgSummary['Account 1']['source']
+    #query.update({'frequency':'Q','year':2010})
+    #tab = _getAccount(**query)
+    #print(tab)
+
+    v = getNIPASummary()
+    print(v.NIPASummary(2018,'Q'))
