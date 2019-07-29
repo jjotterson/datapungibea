@@ -31,10 +31,16 @@ def getIndentations(queryResults,all=[]):
 def toDictionary(indentArrayTuples):
   output = [] 
   for entry in indentArrayTuples:
-    output.append({'tableNames' : entry[0],'structure' : pd.DataFrame(list(zip( list(entry[1]), list(entry[2]) )),columns = ['SeriesCode','Indentation']).to_dict('records')}
+    output.append({'tableNames':list(set(entry[0])), 'structure':pd.DataFrame(list(zip( list(entry[1]), list(entry[2]) )),columns = ['SeriesCode','Indentation']).to_dict('records')}  )
   return(output)
 
   
 data = dpb.data()
 
-v = data.NIPAVintage(type='main',Title = 'Section 1', releaseDate ='2018-12-12')
+
+all = []
+for section in range(1,8):
+    v = data.NIPAVintage(type='main',Title = 'Section '+ str(section), releaseDate ='2018-12-12')
+    all = getIndentations(v,all)
+
+cleanAll = toDictionary(all)
