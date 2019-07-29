@@ -64,3 +64,4 @@ pv = list(pv['TableName'])
 
 
 set(pv).issubset(flat_list)
+set(pv).remove(set())
