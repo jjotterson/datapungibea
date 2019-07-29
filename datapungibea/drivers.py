@@ -1265,10 +1265,10 @@ class getNIPAVintage():
         }]
 
 
-class getNIPASummary():
+class getNIPASummary(): 
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
-          driver of list of NIPA Account Summary tables
+          driver of list of NIPA Account Summary tables  
         '''
         self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
@@ -1286,7 +1286,7 @@ class getNIPASummary():
         array_output = deepcopy(self.cfgSummary)  #use the structure of cfgSummary to output
         for acct in self.cfgSummary:
             print(acct)
-            query = self.cfgSummary[acct]['source']
+            query = self.cfgSummary[acct]['source'] #TODO: query->queryUses querySources - one try - do source and uses at same time.
             if acct == 'Account 2':
                 frequency = 'A'  #Account 2 only have annual data
             query.update({'frequency':frequency,'year':year})
@@ -1294,8 +1294,7 @@ class getNIPASummary():
                 array_output[acct]['source'] = self._getAccountUseOrSource(**query)
             except:
                 print( 'Could not find information of ' + acct +' on current NIPA.  Trying to query historical annual data.' )
-                array_output[acct]['source'] = self.getAccountUseOrSourceVintage(
-                pass
+                array_output[acct]['source'] = self._getAccountUseOrSourceVintage(**query)
             print(array_output[acct]['source'])
             query = self.cfgSummary[acct]['uses']
             query.update({'frequency':frequency,'year':year})
@@ -1303,10 +1302,8 @@ class getNIPASummary():
                 array_output[acct]['uses'] = self._getAccountUseOrSource(**query)
             except:
                 print( 'Could not find information of ' + acct +' on current NIPA.  Trying to query historical annual data.' )
-                array_output[acct]['source'] = self.getAccountUseOrSourceVintage(
-                pass
+                array_output[acct]['source'] = self._getAccountUseOrSourceVintage(**query)
             print(array_output[acct]['uses'])                
-            except:
         return(array_output)
     
     def _getAccountUseOrSource(self,tableName,year,frequency,tableEntries):
@@ -1333,7 +1330,7 @@ class getNIPASummary():
         restrict = pd.DataFrame(tableEntries)
         output = pd.merge(restrict,readTable,on=['SeriesCode','SeriesCode'])
         output['LineDescription'] = output.apply(lambda x: x['indentation']*'-' + x['LineDescription'],axis=1)
-        output.drop(['indentation','LineNumber'],axis=1,inplace=True)
+        output.drop(['indentation','Line'],axis=1,inplace=True)
         output.set_index(['LineDescription','SeriesCode'],inplace=True) #NOTE: this is just for sorting column order
         output.reset_index(inplace=True)
         return(output)
