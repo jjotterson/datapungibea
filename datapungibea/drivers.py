@@ -9,7 +9,7 @@ from datetime import datetime
 from datapungibea import generalSettings 
 from datapungibea import vintage as vintageFns
 from datapungibea import utils
-from datapungibea import CFGnipaSummary
+from datapungibea.config import CFGnipaSummary
 
 
 # (1) Auxiliary functions ######################################################
@@ -139,9 +139,9 @@ class getNIPA():
         frequency      = 'Q',
         year           = 'X',
         payload        = {'method': 'GETDATA', 'DATABASENAME': 'NIPA', 'datasetname': 'NIPA', 'ParameterName': 'TableID'},
-        tryFrequencies = False,  #TODO: remove
         outputFormat   = "tablePretty",
-        verbose        = False
+        verbose        = False,
+        includeIndentations = True
     ):
         '''
             User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
@@ -164,7 +164,7 @@ class getNIPA():
         #
         retrivedData = requests.get(**query)
         
-        output         = self._cleanOutput(query,retrivedData,outputFormat) #a dict of a df or df and meta (tablePretty)
+        output         = self._cleanOutput(query,retrivedData,outputFormat,includeIndentations) #a dict of a df or df and meta (tablePretty)
         
         if verbose == False:
             self._lastLoad = output['dataFrame']
@@ -175,7 +175,7 @@ class getNIPA():
            self._lastLoad = output
            return(output)       
     
-    def _cleanOutput(self,query,retrivedData, outputFormat):
+    def _cleanOutput(self,query,retrivedData, outputFormat,includeIndentations):
         if query['params']['ResultFormat'] == 'JSON':
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
@@ -194,7 +194,7 @@ class getNIPA():
             
             df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]
             df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
-            
+            df_output = self._includeIndentations(df_output,query['params']['TABLENAME'],includeIndentations)
             output = {'dataFrame':df_output,'metadata':meta}
                         
             #update the code string:
@@ -204,6 +204,29 @@ class getNIPA():
             self._cleanCode = self._cleanCode + "df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first') \n" 
             
         return(output)
+    
+    def _includeIndentations(self,df_output,tableName,includeIndentations): #tableName = query['params']['TABLENAME']
+        if not includeIndentations:
+            return(df_output)
+        from datapungibea.config.CFGindentations import indentations as cfgIndentations
+        cfgCases = list(filter(lambda x: tableName in x['tableName'], cfgIndentations))
+        if len(cfgCases) < 1:
+            return(df_output)
+        else:
+            try:
+                indentTable = cfgCases[0]
+                indentTable = pd.DataFrame(list(zip(indentTable['SeriesCode'], indentTable['Indentations'])),columns=['SeriesCode','Indentations'])
+                df_output.reset_index(inplace=True)
+                df_output = df_output.merge(indentTable,on='SeriesCode',how='left') #merge will indentationTable, keep left cases that don't match with right
+                df_output['Indentations'].fillna(0,inplace=True)
+                df_output['LineDescription'] = df_output.apply(lambda x: '-'*x['Indentations'] + x['LineDescription'] , axis = 1)
+                df_output.drop('Indentations',axis=1,inplace=True)
+                df_output.set_index(['LineNumber', 'SeriesCode', 'LineDescription'],inplace=True)
+            except:
+                print('could not include indentations on table '+ tableName + ' returning table without indentation info')
+        return(df_output)
+
+
      
     def clipcode(self):
         _clipcode(self)
@@ -1388,5 +1411,10 @@ if __name__ == '__main__':
     #tab = _getAccount(**query)
     #print(tab)
 
-    v = getNIPASummary()
-    print(v.NIPASummary(2018,'Q'))
+    #v = getNIPASummary()
+    #print(v.NIPASummary(2018,'Q'))
+
+    #table indentations
+    v = getNIPA()
+    print(v.NIPA('T11000',includeIndentations=False))
+    print(v.NIPA('T11000'))
