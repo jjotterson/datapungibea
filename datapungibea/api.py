@@ -98,6 +98,16 @@ class data(delegator):
             self._lastCalledDriver.clipcode()
         except:
             print('Get data using a driver first, eg: data.NIPA("T10101", verbose = True)')
+    
+    def _docDriver(self,driverName):
+        '''
+          Given the delegated method name, get the __doc__ of its class.  
+          eg: _docDriver('NIPA') 
+          returns the __doc__ of getNIPA.NIPA
+        '''
+        parentName = list(self.DELEGATED_METHODS.keys())[list(self.DELEGATED_METHODS.values()).index([driverName])]
+        outhelp = getattr(getattr(self,parentName ),driverName).__doc__
+        return(outhelp)
         
 
 
@@ -140,4 +150,6 @@ if __name__ == '__main__':
 
     #print('Regional data test')
     #print(d.Regional('00000','1','SAGDP5N', 'All')) 
-    print(d.NIPAVintageTables())
+    #print(d.NIPAVintageTables())
+    print(d.NIPA('T10101'))
+    print(d._docDriver('NIPA'))

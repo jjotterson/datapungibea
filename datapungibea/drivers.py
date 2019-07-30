@@ -15,7 +15,7 @@ from datapungibea.config import CFGnipaSummary
 # (1) Auxiliary functions ######################################################
 def _getBaseRequest(baseRequest={},connectionParameters={},userSettings={}):
     '''
-      Write a base request.  Could have other such functions, one for each type of base request.
+      Write a base request.  This is the information that gets used in most requests such as getting the userKey
     '''
     if baseRequest =={}:
        connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
@@ -25,7 +25,7 @@ def _getBaseRequest(baseRequest={},connectionParameters={},userSettings={}):
 
 def _getBaseCode(codeEntries): 
     '''
-      eg: start with an array vEntries, _getBaseCode(*vEntries)
+      The base format of a code that can be used to replicate a driver using Requests directly.
     '''
     code = '''
 import requests
@@ -75,6 +75,9 @@ retrivedData = requests.get(**query)
     return(baseCode + queryCode)
 
 def _clipcode(self):
+    '''
+       Copy the string to the user's clipboard (windows only)
+    '''
     try:
         pyperclip.copy(self._lastLoad['code'])
     except:
@@ -88,6 +91,16 @@ class getDatasetlist():
         self._lastLoad       = {}  #data stored here to assist functions such as clipcode
     
     def datasetlist(self,params = {},verbose=False):
+        '''
+        Get the list of available datasets in the BEA API.  
+        Sample run -
+          datasetlist()
+        
+        Args:
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
+        '''
         query = deepcopy(self._baseRequest)
         query['params'].update({'method':'GETDATASETLIST'})
         
@@ -126,6 +139,9 @@ class getDatasetlist():
 
 
 class getNIPA():
+    '''
+      rest
+    '''
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
         '''
           the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
@@ -133,6 +149,7 @@ class getNIPA():
         self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) 
         self._baseRequest    = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad       = {}  #data stored here to asist other function as clipboard
+        
     
     def NIPA(self,
         tableName,
@@ -144,13 +161,21 @@ class getNIPA():
         includeIndentations = True
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
+        Get National Income and Product Account (NIPA) data. Most parameters are set to deafault values; passing 
+        tableName will return a value of quarterly data in all available years.  Sample run -
+          NIPA('T10101')  
+          NIPA('T10101', frequency = 'A', year='X',verbose=True,includeIndentation=False)
             
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Args:
+            tableName (str): name of NIPA table, for example T10101
+            frequency (str): frequency of data - Annual (A), quarterly (Q) or monthly (M); default to Q
+            year (str): specific year or X for all years -  eg, '2019' or 'X'; default to X
+            payload (dict): this is the base request information of a BEA NIPA query; default - {'method': 'GETDATA', 'DATABASENAME': 'NIPA', 'datasetname': 'NIPA', 'ParameterName': 'TableID'}
+            outputFormat (str): tablePretty will clean up data and return pandas of variable by date; else returns table of (variable,date) by data; default to tablePretty
+            verbose (bool): If false just return a pandas table; else return table, the request result and the code used; default to False
+            includeIndentations (bool): API does not include indentation of the table, indicate if should include it; default to True
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -202,10 +227,13 @@ class getNIPA():
             self._cleanCode = self._cleanCode + "df_output['DataValue'] = pd.to_numeric(df_output['DataValue'].apply(lambda x: x.replace(',','')))  \n"  
             self._cleanCode = self._cleanCode + "df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]  \n"   
             self._cleanCode = self._cleanCode + "df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first') \n" 
-            
+            if includeIndentations:
+                self._cleanCode = self._cleanCode + '\n#Including indentations:'
+                self._cleanCode = self._cleanCode + '\nimport datapungibea as dpb \ndata = dpb.data() \ndf_output = data.getNIPA._includeIndentations(df_output,"'+query['params']['TABLENAME']+'")\n'
+                self._cleanCode = self._cleanCode + '#can get all indentations running:    from datapungibea.config.CFGindentations import indentations as cfgIndentations \n'
         return(output)
     
-    def _includeIndentations(self,df_output,tableName,includeIndentations): #tableName = query['params']['TABLENAME']
+    def _includeIndentations(self,df_output,tableName,includeIndentations=True): #tableName = query['params']['TABLENAME']
         if not includeIndentations:
             return(df_output)
         from datapungibea.config.CFGindentations import indentations as cfgIndentations
@@ -241,9 +269,6 @@ class getNIPA():
 
 class getGetParameterList():
     def __init__(self,baseRequest={},connectionParameters={},userSettings={}):
-        '''
-          the baseRequest contains user Key, url of datasource, and prefered output format (JSON vs XML)
-        '''
         self._connectionInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings )
         self._baseRequest = _getBaseRequest(baseRequest,connectionParameters,userSettings) 
         self._lastLoad    = {}  #data stored here to asist other function as clipboard
@@ -254,13 +279,16 @@ class getGetParameterList():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Get the list of parameter needed to get data from dataset.  
+        Sample run -
+          getParameterList('NIPA')
+        
+        Args:
+            datasetname (str): the name of the dataset eg, NIPA
+            payload (dict): the request payload that is basic to this driver; default to {'method': 'GetParameterList'}
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -319,13 +347,17 @@ class getGetParameterValues():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Get the list of values of a parameter of a database.  
+        Sample run -
+          getParameterValues('NIPA','tableName')
+        
+        Args:
+            datasetname (str): the name of the dataset eg, NIPA
+            parameterName (str): the name of the parameter you want to know the values of; eg 'tableName'
+            payload (dict): the request payload that is basic to this driver; default to {'method': 'getParameterValues'}
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -394,18 +426,31 @@ class getMNE():
         Investment,						
         ParentInvestment,				
         payload        = {'method': 'GETDATA',  'datasetname': 'MNE', 'ParameterName': 'TableID'},
-        tryFrequencies = False,  #TODO: remove
         outputFormat   = "tablePretty",
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the MNE database  
+        Args:
+            Frequency (str):				
+	        TableID (str):				
+            DirectionOfInvestment (str):  	
+            OwnershipLevel (str):				
+            NonbankAffiliatesOnly (str):		 
+            Classification (str):				 
+            Country (str):					
+            Industry (str):					
+            Year (str):						
+            State (str):						
+            SeriesID (str):					
+            GetFootnotes (str):				
+            Investment (str):						
+            ParentInvestment (str):				
+            payload (dict): default to {'method': 'GETDATA',  'datasetname': 'MNE', 'ParameterName': 'TableID'},
+            outputFormat (str): default to "tablePretty",
+            verbose (bool): default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -497,13 +542,17 @@ class getFixedAssets():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the fixed assets database (API query)  
+        Sample run -
+          fixedAssets('T10101','2010')
+        
+        Args:
+            tableName (str): the name of the NIPA table, eg 'T10101'
+            Year (str): the year; eg 'X' for all years or '2018'
+            payload (dict): the request payload that is basic to this driver; default to {'method': 'GETDATA',  'datasetname': 'FixedAssets'}
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -564,13 +613,19 @@ class getITA():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the ITA database (API query)  
+        Sample run -
+          
+        
+        Args:
+            Indicator (str): the name of the NIPA table, eg 'T10101'
+            AreaOrCountry (str): the year; eg 'X' for all years or '2018'
+            Frequency (str): eg Q
+            Year (str): eg 2019
+            payload (dict): the request payload that is basic to this driver; default to {'method': 'GETDATA',  'datasetname': 'FixedAssets'}
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -650,13 +705,19 @@ class getIIP():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the IIP database (API query)  
+        Sample run -
+         
+        
+        Args:
+            TypeOfInvestment (str): eg
+            Component (str): eg
+            Frequency (str): eg Q
+            Year (str): eg 'X' for all or '2019'
+            payload (dict): request default {'method': 'GETDATA',  'datasetname': 'IIP'},
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -720,13 +781,19 @@ class getGDPbyIndustry():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the GDPbyIndustry database (API query)  
+        Sample run -
+         
+        
+        Args:
+            Industry (str): eg
+            TableID (str): eg
+            Frequency (str): eg Q
+            Year (str): eg 'X' for all or '2019'
+            payload (dict): request default {'method': 'GETDATA',  'datasetname': 'GDPbyIndustry'},
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -816,13 +883,17 @@ class getInputOutput():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the InputOutput database (API query)  
+        Sample run -
+         
+        
+        Args:
+            TableID (str): eg
+            Year (str): eg 'X' for all or '2019'
+            payload (dict): request default {'method': 'GETDATA',  'datasetname': 'InputOutput'},
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -884,13 +955,19 @@ class getUnderlyingGDPbyIndustry():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the UnderlyingGDPbyIndustry database (API query)  
+        Sample run -
+         
+        
+        Args:
+            Industry (str): eg
+            TableID (str): eg
+            Frequency (str): eg Q
+            Year (str): eg 'X' for all or '2019'
+            payload (dict): request default {'method': 'GETDATA',  'datasetname': 'IIP'},
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -955,13 +1032,20 @@ class getIntlServTrade():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the IntlServTrade database (API query)  
+        Sample run -
+         
+        
+        Args:
+            TypeOfService (str): eg
+            TradeDirection (str): eg
+            Affiliation (str): eg 
+            AreaOrCountry (str): eg
+            Year (str): eg 'X' for all or '2019'
+            payload (dict): request default {'method': 'GETDATA',  'datasetname': 'IntlServTrade'},
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -1026,13 +1110,19 @@ class getRegional():
         verbose        = False
     ):
         '''
-            User only need to specify the NIPA tableName, other parameters are defined by default.  Year (set to X) and Frequency (set to Q)
-            can be redefined with payload = {Year = 1990, Frequency = 'A'}, for example.
-            
-            payload - will override the default
-            
-            outputFormat - table, tablePretty will return tables (the latter separates the metadata and pivots the table to index x time).
-                           Else, returns the JSON, XML.
+        Query the IntlServTrade database (API query)  
+        Sample run -
+         
+        
+        Args:
+            GeoFips (str): eg
+            LineCode (str): eg
+            TableName (str): eg 
+            Year (str): eg 'X' for all or '2019'
+            payload (dict): request default {'method': 'GETDATA',  'datasetname': 'Regional'},
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code              
         '''
         # TODO: put the payload ={} all data in lowercase, else may repeat the load (say frequency=A and Frquency = Q will load A and Q)
         # load user preferences defined in userSettings, use suggested parameters, override w fun entry
@@ -1090,12 +1180,14 @@ class getNIPAVintageTables():
     
     def NIPAVintageTables(self,verbose=False):
         '''
-            Returns the list of NIPA vintage tables containing: 
-             - the year/Quarter of the release, 
-             - their revision (vintage): third, second, or advance
-             - the release date
-             - the link to the data
-            The output is a pandas table.  There are no inputs, besides the url of the homepage with the data given by default.
+        Get a list of NIPA Vintage tables (non-API)  
+        Sample run -
+         NIPAVintageTables()
+        
+        Args:
+            verbose (bool): if returns that data in a pandas dataframe format or all available information; default to False
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code (empty code for now)             
         '''
         # TODO: 
         listTables   = vintageFns.urlNIPAHistQYVintage( )  
@@ -1151,15 +1243,23 @@ class getNIPAVintage():
         
     def NIPAVintage(self,tableName='',frequency='',type = 'main', Title = '',year='',quarter='',vintage = '',releaseDate='',reload=False,verbose=False,beaAPIFormat=False):
         '''
-          Returns NIPA vintage tables. 
-          - type:  main, underlyning, MilsOfDollars
-          - Title: Section 0, Section 1, ...
-          - vintage: Third, Second, Advance
-          - year: 2019, string or numeric
-          - quarter: Q1,...,Q4
-          - releaseDate: eg '2019-04-05', '04-05-2019', 'Apr-05-2019'  will pick the first release date prior or equal to this.
-          - reload: reloads getting the datatable by QY ReleaseDate
-          - verbose: False just returns a table with all data.  Else, returns cleaned data, code, and returned query
+        Get a list of NIPA Vintage tables (non-API)  
+        Sample run -
+           
+  
+        Args:
+            tableName (str): the name of a NIPA table of interest; will return all tables otherwise. Default to '', all tables.
+            frequency (str): A,Q or M.  Returns all frequencies otherwise.  Default to '', all frequencies   
+            type (str):  main, underlyning, MilsOfDollars.  Defaults to main.
+            Title (str): Section 0, Section 1, etc.  
+            vintage (str): Third, Second, Advance
+            year (str): string or numeric
+            quarter (str): Q1,...,Q4
+            releaseDate (str): will pick the first release date prior or equal to this. string or datetime eg datetime.now(), '2019-04-05', '04-05-2019', 'Apr-05-2019'  
+            reload (bool): reloads getting the datatable by QY ReleaseDate
+            verbose (bool): False just returns a table with all data.  Else, returns cleaned data, code, and returned query
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code   
         '''
         self._getUrlsOfData( type, Title,year,quarter,vintage,releaseDate,reload)  #get the url of excel sheets with data given type, Title etc
         self.array_output = vintageFns.getNIPADataFromListofLinks(self._urlsOfExcelTables)   
@@ -1300,7 +1400,19 @@ class getNIPASummary():
         self.queryNIPA  = getNIPA(baseRequest,connectionParameters,userSettings)
         self.queryNIPAVintage = getNIPAVintage()
                 
-    def NIPASummary(self,year,frequency,verbose=True):  
+    def NIPASummary(self,year,frequency,verbose=True): 
+        '''
+        Overall view of NIPA data (non-API)  
+        Sample run - 
+            NIPASummary(2018,'Q')
+  
+        Args:
+            frequency (str): A,Q or M.  Returns all frequencies otherwise.  Default to '', all frequencies   
+            year (str): string or numeric
+            verbose (bool): False just returns a table with all data.  Else, returns cleaned data, code, and returned query
+        Returns:
+            output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code               
+        '''         
         df_array = self._getAccountTable(year,frequency)
         
         return(df_array)
@@ -1384,32 +1496,13 @@ if __name__ == '__main__':
     #print(listTables)    
     
     #from datapungibea.drivers import  *
-    #v = getNIPAVintage()  
+    v = getNIPAVintage()  
     ##print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
     ##print(v._getUrlsOfData(releaseDate='2019-04-01'))
-    #cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
-    #print(cases)
+    cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
+    print(cases)
     
-    #cfgSummary = CFGnipaSummary.tabparams
-    #frequency  = 'Q'
-    #queryNIPA  = getNIPA()
-    #
-    #def _getAccountUseOrSource(tableName,frequency,year,tableEntries):
-    #    readTable = queryNIPA.NIPA(tableName = tableName, frequency = frequency, year = year )
-    #    readTable.reset_index(inplace=True)
-    #    restrict = pd.DataFrame(query['tableEntries'])
-    #    output = pd.merge(restrict,readTable,on=['SeriesCode','SeriesCode'])
-    #    output['LineDescription'] = output.apply(lambda x: x['indentation']*'-' + x['LineDescription'],axis=1)
-    #    output.drop(['indentation','LineNumber'],axis=1,inplace=True)
-    #    output.set_index(['LineDescription','SeriesCode'],inplace=True) #NOTE: this is just for sorting column order
-    #    output.reset_index(inplace=True)
-    #    return(output)
-    #
-    #def _getAccountTable(frequency,year,config)
-    #query = cfgSummary['Account 1']['source']
-    #query.update({'frequency':'Q','year':2010})
-    #tab = _getAccount(**query)
-    #print(tab)
+
 
     #v = getNIPASummary()
     #print(v.NIPASummary(2018,'Q'))
