@@ -1,8 +1,8 @@
 <h1> Datapungibea  </h1>
 
-  Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  It uses an 
-  Application Program Interface (API) provided by the BEA and access it using Requests, a main python HTTP package. Usually, APIs are better
-  than web scrapping or manually downloading data from a website since they provides a reproducible direct access to data.   
+  Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  It uses the 
+  Application Program Interface (API) provided by the BEA and access it using Requests, a main python HTTP package. Usually, getting data via APIs are better
+  than web scrapping or manual downloads from a website since they provides a reproducible direct access to data.   
   
   Datapungibea has the following features:
   - it provides a quick access to the BEA datasets, but at the same time provides the Requests code snippet used to retrieve the data (which can be placed on a user script for reproducibility).

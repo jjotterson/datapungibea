@@ -85,6 +85,9 @@ def toDictionary(indentArrayTuples,divideBy=2,firstZero=True):
           x = [int(e/2) for e in x]
       if firstZero == True:
         x[0] = 0
+      #cap increase in number of dashes by 1:
+      for ii in x:
+        
       return(tuple(x))
    
   output = [ {'tableName':x[0], 'SeriesCode':x[1],'Indentations':modifyIndent(x[2])} for x in indentArrayTuples]
