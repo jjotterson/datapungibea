@@ -1420,7 +1420,6 @@ class getNIPASummary():
     def _getAccountTable(self,year,frequency):
         array_output = deepcopy(self.cfgSummary)  #use the structure of cfgSummary to output
         for acct in self.cfgSummary:
-            print(acct)
             query = self.cfgSummary[acct]['source'] #TODO: query->queryUses querySources - one try - do source and uses at same time.
             if acct == 'Account 2':
                 frequency = 'A'  #Account 2 only have annual data
@@ -1430,15 +1429,13 @@ class getNIPASummary():
             except:
                 print( 'Could not find information of ' + acct +' on current NIPA.  Trying to query historical annual data.' )
                 array_output[acct]['source'] = self._getAccountUseOrSourceVintage(**query)
-            print(array_output[acct]['source'])
             query = self.cfgSummary[acct]['uses']
             query.update({'frequency':frequency,'year':year})
             try:
                 array_output[acct]['uses'] = self._getAccountUseOrSource(**query)
             except:
                 print( 'Could not find information of ' + acct +' on current NIPA.  Trying to query historical annual data.' )
-                array_output[acct]['source'] = self._getAccountUseOrSourceVintage(**query)
-            print(array_output[acct]['uses'])                
+                array_output[acct]['source'] = self._getAccountUseOrSourceVintage(**query)          
         return(array_output)
     
     def _getAccountUseOrSource(self,tableName,year,frequency,tableEntries):
@@ -1499,13 +1496,13 @@ if __name__ == '__main__':
     v = getNIPAVintage()  
     ##print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
     ##print(v._getUrlsOfData(releaseDate='2019-04-01'))
-    cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
-    print(cases)
+    #cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
+    #print(cases)
     
 
 
-    #v = getNIPASummary()
-    #print(v.NIPASummary(2018,'Q'))
+    v = getNIPASummary()
+    print(v.NIPASummary(2018,'Q'))
 
     #table indentations
     v = getNIPA()

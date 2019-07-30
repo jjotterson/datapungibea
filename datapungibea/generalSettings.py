@@ -203,6 +203,11 @@ def getPackageMetadata():
              "method"     :"NIPAVintage",   
              "params"     :{"tableName":'',"frequency":'',"year":'',"quarter":'',"vintage": '',"releaseDate":''}, #Parameters and default options.
             },                          
+            {
+             "displayName":"NIPA Summary Tables (not API)",
+             "method"     :"NIPASummary",   
+             "params"     :{"year":'',"frequency":''}, #Parameters and default options.
+            },                          
           ],
      }  
     

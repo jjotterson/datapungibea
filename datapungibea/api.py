@@ -64,6 +64,7 @@ class data(delegator):
         'getRegional'                : ['Regional'],
         'getNIPAVintageTables'       : ['NIPAVintageTables'],
         'getNIPAVintage'             : ['NIPAVintage'],
+        'getNIPASummary'             : ['NIPASummary'],
     }
     def __init__(self,connectionParameters = {}, userSettings = {}):
         self.__connectInfo = generalSettings.getGeneralSettings(connectionParameters = connectionParameters, userSettings = userSettings ) #TODO: inherit this, all drivers as well
@@ -87,6 +88,7 @@ class data(delegator):
         self.getRegional                   = drivers.getRegional(baseRequest = self.__connectInfo.baseRequest)
         self.getNIPAVintageTables          = drivers.getNIPAVintageTables(baseRequest = self.__connectInfo.baseRequest)
         self.getNIPAVintage                = drivers.getNIPAVintage(baseRequest = self.__connectInfo.baseRequest)
+        self.getNIPASummary                = drivers.getNIPASummary(baseRequest = self.__connectInfo.baseRequest)
         #TODO: improve loading the drivers 
     
     def __str__(self):
@@ -153,3 +155,5 @@ if __name__ == '__main__':
     #print(d.NIPAVintageTables())
     print(d.NIPA('T10101'))
     print(d._docDriver('NIPA'))
+    print(d._docDriver('NIPASummary'))
+    print(d.NIPASummary('2018','Q'))
