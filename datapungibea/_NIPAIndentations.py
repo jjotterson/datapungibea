@@ -29,14 +29,16 @@ def getIndentations(queryResults,all=[]):
       allrest = [tup[1:] for tup in all] #drop table names of all
     
     for entry in queryResults:
+      entry['Line'] = pd.to_numeric(entry['Line'])
       b = tuple([ tuple(entry['SeriesCode']), tuple(entry['Indentations'])   ] )
       test = whereIn(allrest,b)
       if test < 0:
-        a = tuple([ tuple([entry['tableName'].iloc[0]]), tuple(entry['SeriesCode']), tuple(entry['Indentations']) ] )
+        a = tuple([ tuple([entry['tableName'].iloc[0]]), tuple(entry['Line']),tuple(entry['SeriesCode']), tuple(entry['Indentations']) ] )
         all.append(a)
         allrest.append(b)
       else:
-        a = tuple([ tuple(set(all[test][0] + tuple([entry['tableName'].iloc[0]]))), tuple(entry['SeriesCode']), tuple(entry['Indentations']) ] )
+        #include the name of the new table on the list of tables with given indentation
+        a = tuple([ tuple(set(all[test][0] + tuple([entry['tableName'].iloc[0]]))), tuple(entry['Line']), tuple(entry['SeriesCode']), tuple(entry['Indentations']) ] )
         all[test] = a
     
     return(all)
@@ -70,6 +72,19 @@ def checkHaveAllTables(all):
     
     return(gotAllTables)
 
+def modifyIndent(x,divideBy=2,firstZero=True):
+    x = list(x)
+    if divideBy > 1:
+      canDiv = max( [e%divideBy for e in x])
+      if canDiv == 0:
+        x = [int(e/2) for e in x]
+    if firstZero == True:
+      x[0] = 0
+    #cap increase in number of dashes by 1:
+    for ii in range(1,len(x)):
+        x[ii] = min(x[ii-1]+1,x[ii])      
+    return(tuple(x))
+
 def toDictionary(indentArrayTuples,divideBy=2,firstZero=True):
   '''
     Given something in the format of the output of getIndentations, put in array of dictionaries with tuple entries.
@@ -77,20 +92,7 @@ def toDictionary(indentArrayTuples,divideBy=2,firstZero=True):
     -divideBy = 2, indentations seem to be in multiples of 2, write as multiples of 1.  TODO: check no fractions.
     -firstZero = first line of table should have zero indentation (apparently it's written as a title - centralized)
   '''
-  def modifyIndent(x):
-      x = list(x)
-      if divideBy > 1:
-        canDiv = max( [e%divideBy for e in x])
-        if canDiv == 0:
-          x = [int(e/2) for e in x]
-      if firstZero == True:
-        x[0] = 0
-      #cap increase in number of dashes by 1:
-      for ii in x:
-        
-      return(tuple(x))
-   
-  output = [ {'tableName':x[0], 'SeriesCode':x[1],'Indentations':modifyIndent(x[2])} for x in indentArrayTuples]
+  output = [ {'tableName':x[0], 'LineNumber':x[1],'SeriesCode':x[2],'Indentations':modifyIndent(x[3])} for x in indentArrayTuples]
   #for entry in indentArrayTuples:
   #  output.append({'tableNames':list(set(entry[0])), 'structure':pd.DataFrame(list(zip( list(entry[1]), list(entry[2]) )),columns = ['SeriesCode','Indentation']).to_dict('records')}  )
   return(output)
@@ -103,4 +105,10 @@ if __name__ == '__main__':
     all = getIndentationsInVintage(releaseDate = '2018-12-12')
     print('Got indentation tables for all current tables: ', checkHaveAllTables(all))
     dict_out = toDictionary(all)
-    print(dict_out)
+    
+    
+    
+
+
+
+    

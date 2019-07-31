@@ -236,16 +236,16 @@ class getNIPA():
     def _includeIndentations(self,df_output,tableName,includeIndentations=True): #tableName = query['params']['TABLENAME']
         if not includeIndentations:
             return(df_output)
-        from datapungibea.config.CFGindentations import indentations as cfgIndentations
+        from datapungibea.config.CFGindentations import indentations as cfgIndentations #TODO: move this to __int__
         cfgCases = list(filter(lambda x: tableName in x['tableName'], cfgIndentations))
         if len(cfgCases) < 1:
             return(df_output)
         else:
             try:
                 indentTable = cfgCases[0]
-                indentTable = pd.DataFrame(list(zip(indentTable['SeriesCode'], indentTable['Indentations'])),columns=['SeriesCode','Indentations'])
+                indentTable = pd.DataFrame(list(zip(indentTable['LineNumber'],indentTable['SeriesCode'], indentTable['Indentations'])),columns=['LineNumber','SeriesCode','Indentations'])
                 df_output.reset_index(inplace=True)
-                df_output = df_output.merge(indentTable,on='SeriesCode',how='left') #merge will indentationTable, keep left cases that don't match with right
+                df_output = df_output.merge(indentTable,on=['LineNumber','SeriesCode'],how='left') #merge will indentationTable, keep left cases that don't match with right
                 df_output['Indentations'].fillna(0,inplace=True)
                 df_output['LineDescription'] = df_output.apply(lambda x: '-'*x['Indentations'] + x['LineDescription'] , axis = 1)
                 df_output.drop('Indentations',axis=1,inplace=True)
@@ -1244,7 +1244,7 @@ class getNIPAVintage():
     def NIPAVintage(self,tableName='',frequency='',type = 'main', Title = '',year='',quarter='',vintage = '',releaseDate='',reload=False,verbose=False,beaAPIFormat=False):
         '''
         Get a list of NIPA Vintage tables (non-API)  
-        Sample run -
+        Sample run - 
            
   
         Args:
@@ -1493,7 +1493,7 @@ if __name__ == '__main__':
     #print(listTables)    
     
     #from datapungibea.drivers import  *
-    v = getNIPAVintage()  
+    #v = getNIPAVintage()  
     ##print(v._queryUrlsOfQYRelease(releaseDate='2019-04-01'))
     ##print(v._getUrlsOfData(releaseDate='2019-04-01'))
     #cases = v.NIPAVintage(tableName='T10101',frequency='Q',releaseDate = '2018-03-20')
@@ -1501,10 +1501,10 @@ if __name__ == '__main__':
     
 
 
-    v = getNIPASummary()
-    print(v.NIPASummary(2018,'Q'))
+    #v = getNIPASummary()
+    #print(v.NIPASummary(2018,'Q'))
 
     #table indentations
     v = getNIPA()
-    print(v.NIPA('T11000',includeIndentations=False))
+    #print(v.NIPA('T11000',includeIndentations=False))
     print(v.NIPA('T11000'))
