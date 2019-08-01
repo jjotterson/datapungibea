@@ -1400,7 +1400,7 @@ class getNIPASummary():
         self.queryNIPA  = getNIPA(baseRequest,connectionParameters,userSettings)
         self.queryNIPAVintage = getNIPAVintage()
                 
-    def NIPASummary(self,year,frequency,verbose=True): 
+    def NIPASummary(self,year,frequency,verbose=False): 
         '''
         Overall view of NIPA data (non-API)  
         Sample run - 
@@ -1412,11 +1412,31 @@ class getNIPASummary():
             verbose (bool): False just returns a table with all data.  Else, returns cleaned data, code, and returned query
         Returns:
             output: either a pandas dataframe or a dictionary (verbose=True) with dataFrame, request, and code               
-        '''         
-        df_array = self._getAccountTable(year,frequency)
+        ''' 
+        output = dict()
+        output['request']   = self._getAccountTable(year,frequency)
+        output['dataFrame'] = self._cleanRequest(output['request'])  #will put Account # - source/use as column title to shorten the request output
+                
+        if verbose == False:
+            return(output['dataFrame'])
+        else:
+            return(output)
         
+    def _cleanRequest(self,requestResult):
+        df_array = []
+        for key,entry in requestResult.items():
+            useTable       = entry['uses'].copy()
+            sourceTable    = entry['source'].copy()
+            useCol         = list(useTable.columns)
+            sourceCol      = list(sourceTable.columns)
+            useCol[0]      = key + ' uses'
+            sourceCol[0]   = key + ' sources'
+            useTable.columns = useCol
+            sourceTable.columns = sourceCol
+            df_array.append(useTable)
+            df_array.append(sourceTable)
         return(df_array)
-    
+        
     def _getAccountTable(self,year,frequency):
         array_output = deepcopy(self.cfgSummary)  #use the structure of cfgSummary to output
         for acct in self.cfgSummary:

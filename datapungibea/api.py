@@ -129,7 +129,7 @@ if __name__ == '__main__':
     #print(d.getParameterValues('NIPA','Year',verbose=True))
 
     #print(d.NIPA('T10101',verbose=True)['code'])
-    print(d.NIPA('T10101'))
+    #print(d.NIPA('T10101'))
     #print(d.fixedAssets('FAAt101','X'))
 
     #print(d.ITA('BalCurrAcct','Brazil','A','2010'))
@@ -157,4 +157,7 @@ if __name__ == '__main__':
     #print(d._docDriver('NIPA'))
     #print(d._docDriver('NIPASummary'))
     #print(d.NIPASummary('2018','Q'))
-    v = d.NIPAVintage(tableName = 'T10206', releaseDate = '2018-08-08')
+    #v = d.NIPAVintage(tableName = 'T10206', releaseDate = '2018-08-08')
+    print('table')
+    v = d.NIPAVintage(tableName = 'T10101', Title = 'Section 1',year = '2018', quarter ='Q1',vintage='Second')
+    print(v)

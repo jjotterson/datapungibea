@@ -126,6 +126,22 @@ def test_Regional():
     assert execCode['codeRun']           #try to execute the code.       
     assert execCode['codeOutput'].equals(driver['dataFrame']) #test if the output of the code equals the output of the      
 
+def test_NIPASummary():
+    driver = dataBea.NIPASummary('2012','Q',verbose=True)
+    #execCode = executeCode(driver['code']) 
+    #assert driver['request'].status_code == 200  #test if connection was stablished
+    assert not driver['dataFrame'][0].empty         #cleaned up output is not empty  
+    #assert execCode['codeRun']           #try to execute the code.       
+    #assert execCode['codeOutput'].equals(driver['dataFrame']) #test if the output of the code equals the output of the      
+
+def test_NIPAVintage():
+    driver = dataBea.NIPAVintage(tableName = 'T10101', Title = 'Section 1',year = '2018', quarter ='Q1',vintage='Second',verbose = True)
+    execCode = executeCode(driver['code']) 
+    #assert driver['request'].status_code == 200  #test if connection was stablished
+    assert not driver['dataFrame'][0].empty         #cleaned up output is not empty
+    #assert execCode['codeRun']           #try to execute the code.       
+    #assert execCode['codeOutput'].equals(driver['dataFrame']) #test if the output of the code equals the output of the      
+
 
 if __name__ == '__main__':
     #test_IIP()
