@@ -5,7 +5,7 @@ import requests
 from datapungibea.api import *
 import datapungibea.tests as tests
 
-__version__ = '0.8'
+__version__ = '0.81'
 #__all__ = ['api']
 
 
