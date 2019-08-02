@@ -19,13 +19,25 @@
 
 <h2> Sample runs </h2>
 
-After setting the package up (see **Setting Up** section, the main step is to get an API key from BEA), datapungibea can run the following:
+After setting the package up (see **Setting Up** section, the main step is to get an API key from BEA, save it somewhere and let datapungibea know about its location), you can run the following:
 
     import datapungibea as dpb
+    
+    #Step 0: follow the Setting Up section below (basically, you need to get a key from BEA 
+    #save it somewhere or pass it to the app in a given session)
 
-    data = dpb.data()                 #loads the user API key, sets the url of the BEA API
+    #Step 1: load user keys, start the connections to the databases (drivers, eg NIPA)
+    data = dpb.data()                 
+    
+    #else, you can either let datapungibea know about the location of the key during the session only:
+    #see, the Setting UP section below for the format of the json file containing the key).
+    #data = dpb.data(userSettings = {"ApiKeysPath": "Path/yourFile.json", "ApiKeyLabel": "BEA", "ResultFormat": "JSON"} )
 
-    #help and documentation methods:
+    #or pass the key direclty:
+    #data = dpb.data({"key": "your key", "url": "https://apps.bea.gov/api/data/"})
+    
+
+    #Step 2: start loading data - here is some documentation on doing this:
     print(data._help)                 #overall info on datapungibea plus an example of a request
     print(data)                       #the list of datasets datapungi can query (the 'drivers'), eg 'NIPA'
     print(data._docDriver('NIPA'))    #prints the documentation of a given driver
@@ -34,6 +46,10 @@ After setting the package up (see **Setting Up** section, the main step is to ge
     data.NIPA('T10101')               #Query the dataset.  The output is a pandas dataframe. 
                                       #Note: for the NIPA driver, it will enrich the dataset to include 
                                       #missing indentations (NIPA's graph structure).
+    data.NIPA('T10101',frequency='A',year='X',includeIndentations=False) 
+    #Note: see 
+    print(data._docDriver('NIPA')) 
+    #for the other driver input options.
     
     #to get the full information, select the verbose option of a driver:
     full = data.NIPA('T10101',verbose=true)  
@@ -142,20 +158,6 @@ The example below loads data at very aggregate level and then keeps the cases wi
     out1 = data.NIPAVintage('tableName = 'T10101',frequency='Q',Title='Section 1',releaseDate='2018-01-01')
     out2 = data.NIPAVintage('tableName = '10101', frequency='Q',Title='Section 1',releaseDate='2008-01-01')
     
-
-    
-
-
-
-
-
-
-
-
-
-
-  
-
 <h2> Setting up Datapungibea </h2>
 
 To use the BEA API, **the first step** is to get an API key from the BEA: 
@@ -219,7 +221,8 @@ You can save your test output folder in the user settings as well (need / at the
 
     dpb.utils.setTestFolder('C:/mytestFolder/')
 
-
+NOTE: the tests will only work if datapungibea is aware of the API key location (currently, you 
+cannot pass it directly during a test).
 
 <h2> References </h2>
 
