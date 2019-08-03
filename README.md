@@ -1,4 +1,6 @@
 [![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/datapungibea/) 
+[![Build Status](https://travis-ci.com/jjotterson/datapungibea.svg?branch=master)](https://travis-ci.com/jjotterson/datapungibea)
+
 
 install code: pip install datapungibea 
 
