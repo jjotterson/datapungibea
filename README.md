@@ -1,8 +1,10 @@
-[![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/datapungibea/)
+[![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/datapungibea/) 
+
+install code: pip install datapungibea 
 
 <h1> Datapungibea  </h1>
 
-  Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  It uses the 
+  Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  Its main purpose is to uses the 
   Application Program Interface (API) provided by the BEA and access it using Requests, a main python HTTP package. Usually, getting data via APIs are better
   than web scrapping or manual downloads from a website since they provides a reproducible direct access to data.   
   
