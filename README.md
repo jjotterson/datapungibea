@@ -1,3 +1,5 @@
+[![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/datapungibea/)
+
 <h1> Datapungibea  </h1>
 
   Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  It uses the 
