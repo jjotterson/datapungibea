@@ -2,8 +2,15 @@ import datapungibea as dpbea
 import time
 import pandas as pd
 
-dataBea = dpbea.data()
-
+# content of test_sample.py
+def test_answer(cmdopt):
+    global dataBea
+    if not cmdopt == "":
+        connectionParameters = {"key": cmdopt, "url": "https://apps.bea.gov/api/data/"}
+    else:
+        connectionParameters = {}
+    dataBea = dpbea.data(connectionParameters)
+    assert dataBea
 
 def executeCode(stringIn):
     '''
@@ -144,9 +151,10 @@ def test_NIPAVintage():
 
 
 if __name__ == '__main__':
+    test_answer('')
     #test_IIP()
     #test_datasetlist()
     #test_getParameterList()
     #test_getParameterValues()
-    test_NIPA()
+    #test_NIPA()
     #test_fixedAssets()
