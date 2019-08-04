@@ -1,16 +1,8 @@
 import datapungibea as dpbea 
 import time
 import pandas as pd
+import os
 
-# content of test_sample.py
-def test_answer(cmdopt):
-    global dataBea
-    if not cmdopt == "":
-        connectionParameters = {"key": cmdopt, "url": "https://apps.bea.gov/api/data/"}
-    else:
-        connectionParameters = {}
-    dataBea = dpbea.data(connectionParameters)
-    assert dataBea
 
 def executeCode(stringIn):
     '''
@@ -26,10 +18,27 @@ def executeCode(stringIn):
         except:
             return(dict(codeRun = False, codeOutput = pd.DataFrame([])))
 
-def test_datasetlist():
+# content of test_sample.py
+def test_startDriver(cmdopt):
+    global dataBea
+    if not cmdopt == "":
+        connectionParameters = {"key": cmdopt, "url": "https://apps.bea.gov/api/data/"}
+    else:
+        connectionParameters = {}
+    dataBea = dpbea.data(connectionParameters)
+    assert dataBea
+    return(dataBea)
+
+def test_datasetlist(cmdopt):
     '''
       test the datasetlist BEA dataset
     '''
+    global dataBea
+    if not cmdopt == "":
+        connectionParameters = {"key": cmdopt, "url": "https://apps.bea.gov/api/data/"}
+    else:
+        connectionParameters = {}
+    dataBea = dpbea.data(connectionParameters)
     driver   = dataBea.datasetlist(verbose=True)
     execCode = executeCode(driver['code']) 
     assert driver['request'].status_code == 200               #test if connection was stablished
