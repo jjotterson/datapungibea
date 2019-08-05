@@ -200,8 +200,8 @@ import datapungibea as dpb
 data = dpb.data()
 
 print(data._docDriver('NIPAVintage'))    #list the args and default options of this method.
-out1 = data.NIPAVintage('tableName = 'T10101',frequency='Q',Title='Section 1',releaseDate='2018-01-01')
-out2 = data.NIPAVintage('tableName = '10101', frequency='Q',Title='Section 1',releaseDate='2008-01-01')
+out1 = data.NIPAVintage(tableName = 'T10101',frequency='Q',Title='Section 1',releaseDate='2018-01-01')
+out2 = data.NIPAVintage(tableName = '10101', frequency='Q',Title='Section 1',releaseDate='2008-01-01')
 ```    
 <h2> Setting up Datapungibea </h2>
 
@@ -210,7 +210,7 @@ To use the BEA API, **the first step** is to get an API key from the BEA:
 * https://apps.bea.gov/API/signup/index.cfm
 
 It is not a best practice to save an API key on a script that is running your code.  **The second step** to set up datapungibea is to save your API key on a safe location.  In particular, you will need to save your BEA API key somewhere  on your computer on a json file containing at least the following line: 
-```json
+```python
     {  
          "BEA": {"key": "**PLACE YOUR KEY HERE**", "url": "https://apps.bea.gov/api/data/"},
          (...Other API keys...)
@@ -222,7 +222,7 @@ That is all that is needed to start running datapungibea.    You can either alwa
 ```python
 import datapungibea as dpb   
     
-userSettings = {'ApiKeysPath': '**C:/Path to My Folder/myApiKey.json**', 'ApiKeyLabel': 'BEA','ResultFormat':'JSON'}   
+userSettings = {'ApiKeysPath':'**C:/MyFolder/myApiKey.json**', 'ApiKeyLabel':'BEA','ResultFormat':'JSON'}   
 drivers = dpb.data(userSettings = userSettings)  
 drivers.NIPA('T10101')
 ```
