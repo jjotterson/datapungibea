@@ -1,4 +1,4 @@
-[![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/datapungibea/) 
+[![image](https://img.shields.io/pypi/v/datapungibea.svg)](https://pypi.org/project/datapungibea/) 
 [![Build Status](https://travis-ci.com/jjotterson/datapungibea.svg?branch=master)](https://travis-ci.com/jjotterson/datapungibea)
 <!--[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/datapungibea/)-->
 
@@ -11,14 +11,14 @@ install code: pip install datapungibea
   than web scrapping or manual downloading from a website since they provide a reproducible direct access to data.   
   
   Datapungibea has the following features:
-  - it provides a quick access to the BEA datasets, but at the same time provides the Requests code snippet used to retrieve the data (which can be placed on a user script for reproducibility).
-  - it outputs the whole request output (which includes metadata), but it also provides a cleaned up version, in python pandas format, of the requested dataset.
-  - it goes beyond the data provided by the BEA's API to include: 
+  - provides a quick access to the BEA datasets, but at the same time provides the Requests code snippet used to retrieve the data (which can be placed on a user script for reproducibility).
+  - outputs the whole request output (which includes metadata), but it also provides a cleaned up version, in python pandas format, of the requested dataset.
+  - goes beyond the data provided by the BEA's API to include: 
       * NIPA vintage data; 
       * NIPA graph structure (indentations); and 
       * NIPA summary tables.      
-  - it provides a simplified management (update and read) of the user access keys (user API keys) to avoid having a copy of the key on a user script.
-  - it can automatically test: 
+  - provides a simplified management (update and read) of the user access keys (user API keys) to avoid having a copy of the key on a user script.
+  - can automatically test: 
       * the connectivity to all BEA datasets, 
       * the quality of the cleaned up data, and 
       * the validity of the provided requests code to be placed in a user's script. 
@@ -241,12 +241,12 @@ Note: in case you prefer to use the log the API directly, you can use the 'conne
 
 <h2> Running Tests (Optional) </h2>
 
-Datapungibea comes with a family of tests to check its access to the BEA API and the quality of the retrieved data.  They check:
+Datapungibea comes with a family of tests to check its access to the BEA API and the quality of the retrieved data.  They check if:
 
-1. if the connection to BEA is working,
-2. if the data cleaning step worked,
-3. if the code snippet is executing,
-4. if the code snippet gets the same data as the datapungi query.
+1. the connection to BEA is working,
+2. the data cleaning step worked,
+3. the code snippet is executing,
+4. the code snippet gets the same data as the datapungi query.
 
 Other tests check if BEA data has being updated of if new data is available.  Most of these tests are run every night on python 3.5, 3.6 and 3.7 (see the code build tag on the top of the document).  However, 
 these test runs are not currently checking the code snippet quality to check if its output is the same as the driver's. To run the tests, including the one 
