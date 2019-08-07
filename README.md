@@ -1,3 +1,7 @@
+<!--
+TODO: add explanation of the request part of the vintage.
+-->
+
 [![image](https://img.shields.io/pypi/v/datapungibea.svg)](https://pypi.org/project/datapungibea/) 
 [![build Status](https://travis-ci.com/jjotterson/datapungibea.svg?branch=master)](https://travis-ci.com/jjotterson/datapungibea)
 [![downloads](https://img.shields.io/pypi/dm/datapungibea.svg)](https://pypi.org/project/datapungibea/)
@@ -172,8 +176,7 @@ by the BEA's APIs and have to be retrived using less reliable methods.  Overall,
   - **type** :  main, underlyning, MilsOfDollars.  (Defaults to main.)
   - **vintage** :  Third, Second, Advance (default empty)
 
- Hence, any query will always first download all the data at this level.  For example, there still remains to specify the NIPA table (eg T10101) and if it is in annual, monthly or yearly data format.  Often, there will be more than 100s of tables even after specifying the above parameters.  So, it is a good idea to specify 
-as many of the top parameters as possible.    
+ Hence, any query will always first download all the data at this level.  Often, there will be more than 100s of tables even after specifying the above parameters.  So, it is a good idea to specify as many of them as possible. For example, there still remains to specify the NIPA table (eg T10101) and its frequency (annual, monthly or yearly data). 
 
 Hence, unless using a powerful computer, **do not** run:
 ```python
