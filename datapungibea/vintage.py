@@ -106,17 +106,13 @@ def urlNIPAHistQYVintageMainOrUnderlSection(
     return(output)
 
 
-def getAllLinksToHistTables(readSaved = False):
+def getAllLinksToHistTables():
     '''
       Concatenate the tables of the excel data urls.
        
       If readSaved = True, will read the pre-saved data
     '''
-    
-    if readSaved == True:
-      urlOfExcelTables = pd.read_json('I:/Jamesot/Projects/outside/beafullfetchpy/beafullfetchpy/data/NIPAUrlofExcelHistData.json',orient="records")  #TODO: fix this, need to include Manifest.in
-      return( urlOfExcelTables )
-    
+  
     #Get the location of the datasets with same Q-Y  
     dfUrlQYVintage = urlNIPAHistQYVintage()
     
@@ -259,6 +255,20 @@ def formatBeaRaw( rawIn , beaAPIFormat = False):
     
     return(Results)
         
+
+
+if __name__ == '__main__':
+    
+    listTables = urlNIPAHistQYVintage( )
+    print(listTables)
+    urlData = urlNIPAHistQYVintageMainOrUnderlSection( listTables.iloc[0] )
+    print(urlData)
+    allLinks = getAllLinksToHistTables()
+    print(allLinks)
+
+
+    
+'''
 def saveResults(Results,outputFormat = 'dict', save = 'no', saveAs = '' ):        
     #Put in final format (and save or return)  #TODO: refactor this part, also,include the option of saving the tables separateldy
     if outputFormat == 'dict':
@@ -372,15 +382,4 @@ def saveResults(Results,outputFormat = 'dict', save = 'no', saveAs = '' ):
         else:
             outputF = pickle.dumps(output,protocol=pickle.HIGHEST_PROTOCOL)
             return(outputF)      
-
-
-if __name__ == '__main__':
-    
-    listTables = urlNIPAHistQYVintage( )
-    print(listTables)
-    urlData = urlNIPAHistQYVintageMainOrUnderlSection( listTables.iloc[0] )
-    print(urlData)
-    allLinks = getAllLinksToHistTables()
-    print(allLinks)
-
-    
+'''
