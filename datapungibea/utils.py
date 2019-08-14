@@ -10,6 +10,7 @@ to update internal configs.
 import json
 import pkg_resources
 import yaml
+import os
 
 def getConnectionParameters(connectionParameters = {}, userSettings = {}):  
     '''
@@ -20,7 +21,7 @@ def getConnectionParameters(connectionParameters = {}, userSettings = {}):
     '''
 
     if not connectionParameters == {}:
-        if isinstance(connectionParameters,str):
+        if isinstance(connectionParameters,str):  #in this case, user only passes a key, no url
             pkgcfgPath = getResourcePath("/config/pkgConfig.yaml")
             with open(pkgcfgPath, 'r') as stream:
                pkgCfg = yaml.safe_load(stream) 
@@ -31,11 +32,27 @@ def getConnectionParameters(connectionParameters = {}, userSettings = {}):
         userSettings = getUserSettings()
 
     try:
-        with open(userSettings['ApiKeysPath']) as jsonFile:
-             connectionParameters = (json.load(jsonFile))[userSettings['ApiKeyLabel']]
+        storingMethod = userSettings['ApiKeysPath'].split('.')[-1]
+        labelName = userSettings['ApiKeyLabel']
+        if storingMethod == 'json':
+            with open(userSettings['ApiKeysPath']) as jsonFile:
+                 connectionParameters = (json.load(jsonFile))[labelName]
+        elif storingMethod == 'yaml':
+            with open(userSettings['ApiKeysPath'], 'r') as stream:
+                pkgCfg = yaml.safe_load(stream)
+                connectionParameters = pkgCfg[labelName]
+        elif storingMethod =='env':
+            #look for an environment variable called something like BEA_url
+            url = os.getenv(labelName+'_url')
+            if url == None:  #if can't find it, load from the package config
+                pkgcfgPath = getResourcePath("/config/pkgConfig.yaml")
+                with open(pkgcfgPath, 'r') as stream:
+                   pkgCfg = yaml.safe_load(stream) 
+                url = pkgCfg['url']
+            connectionParameters = {'key':os.getenv(labelName),'url':url}
         return(connectionParameters)
     except:
-        print('Could not find dictionary key ' + userSettings['ApiKeyLabel'] + ' in \n '+ userSettings['ApiKeysPath'])
+        print('Could not find dictionary key ' + labelName + ' in \n '+ userSettings['ApiKeysPath'])
         return   
 
 def getResourcePath(relativePath, resource_package = __name__):
