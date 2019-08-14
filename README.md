@@ -12,18 +12,14 @@ install code: pip install datapungibea
 
 <h1> Datapungibea  </h1>
 
-  Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  Its main purpose is to use BEA's 
-  Application Program Interface (API) and access it using Requests, a main python HTTP package. Usually, getting data via APIs are better
-  than web scrapping or manual downloading from a website since they provide a reproducible direct access to data.   
-  
-  Datapungibea has the following features:
-  - provides a quick access to the BEA datasets, but at the same time provides the Requests code snippet used to retrieve the data (which can be placed on a user script for reproducibility).
-  - outputs the whole request output (which includes metadata), but it also provides a cleaned up version, in python pandas format, of the requested dataset.
+  Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  Its main purpose is to connect to BEA's Application Program Interface (API); overall it:
+  - provides a quick access to the BEA datasets **and** the python's Requests code snippet used to retrieve the data (which can be placed on a user script for reproducibility totally indenpendent from datapungibea).
+  - returns the whole request output (which includes metadata), but it also provides a cleaned up version, in python pandas format, of the requested dataset.
   - goes beyond the data provided by the BEA's API to include: 
       * NIPA vintage data; 
       * NIPA graph structure (indentations); and 
       * NIPA summary tables.      
-  - provides a simplified management (update and read) of the user access keys (user API keys) to avoid having a copy of the key on a user script.
+  - provides a simplified management (update and read) of the user access keys (user API keys) to avoid having a copy of the key on a user script. It can retrive api keys from json, yaml files or from environment variables.
   - can automatically test: 
       * the connectivity to all BEA datasets, 
       * the quality of the cleaned up data, and 
@@ -31,14 +27,14 @@ install code: pip install datapungibea
 
 <h2> Sample runs </h2>
 
-After setting the package up (see **Setting Up** section, the main step is to get an API key from BEA, save it somewhere and let datapungibea know about its location), you can run the following:
+After setting the package up (see **Setting Up** section, the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location), you can run the following:
 
 ```python
 import datapungibea as dpb
 
 #Step 0: follow the Setting Up section below 
 
-#Step 1: load user keys, start the connections to the databases (drivers, eg NIPA)
+#Step 1: start a
 data = dpb.data()                 
 
 #else, you can either (1) pass the key directly or (2) point to the key location:
