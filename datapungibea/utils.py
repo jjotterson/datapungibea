@@ -9,6 +9,7 @@ to update internal configs.
 
 import json
 import pkg_resources
+import yaml
 
 def getConnectionParameters(connectionParameters = {}, userSettings = {}):  
     '''
@@ -19,6 +20,11 @@ def getConnectionParameters(connectionParameters = {}, userSettings = {}):
     '''
 
     if not connectionParameters == {}:
+        if isinstance(connectionParameters,str):
+            pkgcfgPath = getResourcePath("/config/pkgConfig.yaml")
+            with open(pkgcfgPath, 'r') as stream:
+               pkgCfg = yaml.safe_load(stream) 
+            connectionParameters = {'url':pkgCfg['url'],'key':connectionParameters}
         return(connectionParameters)
 
     if userSettings == {}:

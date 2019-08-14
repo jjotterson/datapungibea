@@ -7,3 +7,4 @@ lxml
 xlrd
 beautifulsoup4
 html5lib
+pyyaml
