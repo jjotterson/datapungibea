@@ -66,7 +66,20 @@ def getUserSettings(userSettings = {}):
         print('.utils.py: Could not open the userSettings: \n ./config/userSettings.json \n returning empty dictionary')
         return({})
 
-
+def setPkgConfig(newUrl):
+    '''
+     save the default url of the BEA api
+    '''
+    if not isinstance(newUrl,str):
+        print('Provide a string of the BEA URL')
+        pass
+    pkgcfgPath = getResourcePath("/config/pkgConfig.yaml")
+    with open(pkgcfgPath, 'r') as stream:
+        pkgCfg = yaml.safe_load(stream) 
+    pkgCfg['url'] = newUrl
+    with open(pkgcfgPath, 'w') as outfile:
+         yaml.dump(pkgCfg,outfile, default_flow_style=False)
+    
 def setUserSettings(newPath):  #TODO: check if still valid
     '''
        sets the api key path in the package config file. 
