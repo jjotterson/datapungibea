@@ -16,7 +16,7 @@ install code: pip install datapungibea
   - provides a quick access to the BEA datasets **and** the python's Requests code snippet used to retrieve the data (which can be placed on a script to automate a run indenpendent from datapungibea).
   - returns the whole request output (which includes metadata), but it also provides a cleaned up pandas table of it.
   - goes beyond the data provided by the BEA's API to include: 
-      * NIPA vintage data; 
+      * [NIPA Vintage](#NIPA-Vintage) 
       * NIPA graph structure (indentations); and 
       * NIPA summary tables.      
   - can read saved user API keys (in json/yaml files or environment variables (default)) to avoid having a copy of the key on a script.
@@ -25,7 +25,7 @@ install code: pip install datapungibea
       * the quality of the cleaned up data, and 
       * the validity of the provided requests code to be placed in a user's script. 
 
-<h2> Sample runs </h2>
+## Sample runs 
 
 After setting the package up (see **Setting Up** section, the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location), you can run the following:
 
@@ -64,7 +64,7 @@ data._clipcode()
 data.NIPASummary('2010','A')
 ```
 
-<h3>Sample run of NIPA Vintage methods </h3>
+### Sample run of NIPA Vintage methods 
 
 Quick example (see section below for more):
 
@@ -87,7 +87,7 @@ data.NIPAVintage(tableName='10101',Title='Section 1', releaseDate = '2008-03-20'
 data.NIPAVintage(Title='Section 1',quarter='Q1',year='2009',vintage='Third')
 ```
 
-<h3>Sample run of all BEA API drivers</h3>
+### Sample run of all BEA API drivers
 
 ```python
 
@@ -122,7 +122,7 @@ data.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL')
 data.IntlServTrade('ALL','ALL','ALL','AllCountries','All')  
 ```
 
-<h2> Request result (verbose = True option) </h2>
+## Request result (verbose = True option) 
 
 When the verbose option is selected, eg:
 
@@ -162,7 +162,7 @@ is again a dictionary this time with the following entries:
   - Notes: A quick description of the dataset with the date it was last revised.  
 
 
-<h2> NIPA Vintage </h2>
+## NIPA Vintage 
   Vintage data (i.e., data as as provided in a given date without subsequent updates) are not provided
 by the BEA's APIs and have to be retrived using less reliable methods.  Overall, vintage data is costly to load because they are aggregated by:
 
@@ -204,7 +204,7 @@ print(data._docDriver('NIPAVintage'))    #list the args and default options of t
 out1 = data.NIPAVintage(tableName = 'T10101',frequency='Q',Title='Section 1',releaseDate='2018-01-01')
 out2 = data.NIPAVintage(tableName = '10101', frequency='Q',Title='Section 1',releaseDate='2008-01-01')
 ```    
-<h2> Setting up Datapungibea </h2>
+## Setting up Datapungibea 
 
 To use the BEA API, **the first step** is to get an API key from the BEA: 
 
@@ -240,7 +240,7 @@ dpb.utils.setUserSettings('C:/Path/myKeys.json')
 
 Note: in case you prefer to use the log the API directly, you can use the 'connectionParameters' entry of the dpb.data above to pass the key direclty.
 
-<h2> Running Tests (Optional) </h2>
+## Running Tests (Optional) 
 
 Datapungibea comes with a family of tests to check its access to the BEA API and the quality of the retrieved data.  They check if:
 
@@ -270,7 +270,7 @@ dpb.utils.setTestFolder('C:/mytestFolder/')
 ```
 
 
-<h2> References </h2>
+## References 
 
 - https://apps.bea.gov/API/signup/index.cfm
 - https://2.python-requests.org//en/master/
