@@ -122,6 +122,31 @@ def setUserSettings(newPath):  #TODO: check if still valid
         print('Could not save the configuration to file: \n datapungibea/config/userSettings.json \n Path API Key not updated')
         pass
 
+def setKeyName(newName):  #TODO: check if still valid
+    '''
+       sets the api key name in the package config file. 
+       eg:
+       import datapungibea as dpb
+       dpb.utils.setKeyName('BEA_Secrete')
+    '''
+    userSettingsPath = getResourcePath('/config/userSettings.json')
+    try:
+        with open(userSettingsPath) as jsonFile:
+             config = json.load(jsonFile)
+    except:
+        print('Could not open the configuration file: \n datapungi/config/userSettings.json')
+        pass
+    
+    config["ApiKeyLabel"] = newName
+
+    try:
+        with open(userSettingsPath,'w') as jsonFile:
+            json.dump(config,jsonFile)
+        print('Name of the API Keys updated! New Name: \n' + config["ApiKeyLabel"])
+    except:
+        print('Could not save the configuration to file: \n datapungibea/config/userSettings.json \n API Key Name not updated')
+        pass
+
 def setTestFolder(newTestsPath):
     userSettingsPath = getResourcePath('/config/userSettings.json')
     try:

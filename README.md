@@ -341,6 +341,20 @@ data = dpb.data()
 data.NIPA('T10101')
 ```
 
+If you want to save the url of the BEA API in the environment, call it BEA_url. Datapungibea will use the provided http address instead of the default 
+
+> https://apps.bea.gov/api/data/
+
+### Changing the API key name
+  By default, datapungibea searches for an API key called 'BEA' (in either json/yaml file or in the environment).  In some cases, it's preferable to call it something else (in conda, use BEA_Secret to encript it).  To change the name of the key, run
+
+  ```python
+  import datapungibea as dpb
+  
+  dpb.utils.setKeyName('BEA_Secret')  #or anyother prefered key name
+  ```
+  When using environment variables, if saving the API url in the environment as well, call it KeyLabel_url (for example, 'BEA_Secret_url'). Else, datapungibea will use the default one.
+  
 ## Running Tests
 
 Datapungibea comes with a family of tests to check its access to the BEA API and the quality of the retrieved data.  They check if:
