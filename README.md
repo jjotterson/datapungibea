@@ -73,14 +73,18 @@ import datapungibea as dpb
 
 data = dpb.data()
 
-data.NIPA('T10101')
 data.NIPA('T10101',includeIndentations=False)
+data.NIPA('T10101')
 ```
+
+![](./docs/noindentQuery.png) 
+![](./docs/enrichindentQuery.png)    
+ 
 
 There are hundreds of NIPA tables.  To get an overall picture of the data, datapungibea provides a NIPASummary table for a given date; it breaks down the data in the source of income and expenditures of six sectors (eg, Households, Private Enterprises, Government, Overall economy).
 
 ```python 
-data.NIPASummary('2010','A')
+data.NIPASummary('2010','A') 
 ```
 
 Finaly, for the NIPA database, datapungibea can also fetch vintage data:
