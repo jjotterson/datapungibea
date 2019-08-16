@@ -121,10 +121,21 @@ class getDatasetlist():
         if query['params']['ResultFormat'] == 'JSON':
             self._cleanCode = "df_output =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
             df_output =  pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )
+            df_output.meta = ''
+            try:
+                df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            except:
+                pass
+        
         else:
             self._cleanCode = "pd.DataFrame( retrivedData.json()['BEAAPI']['Results']['Dataset'] )"
             df_output =  pd.DataFrame( retrivedData.xml()['BEAAPI']['Results']['Dataset'] )  #TODO: check this works
-    
+            df_output.meta = ''
+            try:
+                df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            except:
+                pass
+        
         return(df_output)
         
     def clipcode(self):
@@ -204,9 +215,19 @@ class getNIPA():
         if query['params']['ResultFormat'] == 'JSON':
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            df_output.meta = ''
+            try:
+                df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            except:
+                pass
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
+            df_output.meta = ''
+            try:
+                df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            except:
+                pass           
          
         output = {'dataFrame':df_output}
         
