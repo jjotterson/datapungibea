@@ -77,7 +77,7 @@ data.NIPA('T10101',includeIndentations=False)
 data.NIPA('T10101')
 ```
 
-![](./docs/noindentQuery.png) 
+![](./docs/beaQuery.png) 
 ![](./docs/enrichindentQuery.png)    
  
 
