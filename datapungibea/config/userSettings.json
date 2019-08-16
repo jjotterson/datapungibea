@@ -1,1 +1,1 @@
-{"ApiKeysPath": "D:/Users/Public/APIKeys/apikeys.json", "ApiKeyLabel": "BEA", "ResultFormat": "JSON", "TestsOutputPath": "U:/Tests"}
+{"ApiKeysPath": "env", "ApiKeyLabel": "BEA", "ResultFormat": "JSON", "TestsOutputPath": "U:/Tests"}
