@@ -4,8 +4,8 @@ TODO: add explanation of the request part of the vintage.
 
 [![image](https://img.shields.io/pypi/v/datapungibea.svg)](https://pypi.org/project/datapungibea/) 
 [![build Status](https://travis-ci.com/jjotterson/datapungibea.svg?branch=master)](https://travis-ci.com/jjotterson/datapungibea)
-[![downloads](https://img.shields.io/pypi/dw/datapungibea.svg)](https://pypi.org/project/datapungibea/)
-[![size](https://img.shields.io/github/repo-size/jjotterson/datapungibea)](https://pypi.org/project/datapungibea/)
+[![downloads](https://img.shields.io/pypi/dm/datapungibea.svg)](https://pypi.org/project/datapungibea/)
+
 <!--[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/datapungibea/)-->
 
 install code: pip install datapungibea 
@@ -16,7 +16,7 @@ install code: pip install datapungibea
   - provides a quick access to the BEA datasets **and** the python's Requests code snippet used to retrieve the data (which can be placed on a script to automate a run indenpendent from datapungibea).
   - returns the whole request output (which includes metadata), but it also provides a cleaned up pandas table of it.
   - goes beyond the data provided by the BEA's API to include: 
-      * [NIPA Vintage](#NIPA-Vintage) 
+      * NIPA Vintage
       * NIPA graph structure (indentations); and 
       * NIPA summary tables.      
   - can read saved user API keys (in json/yaml files or environment variables (default)) to avoid having a copy of the key on a script.
@@ -25,48 +25,65 @@ install code: pip install datapungibea
       * the quality of the cleaned up data, and 
       * the validity of the provided requests code to be placed in a user's script. 
 
-## Sample runs 
+## Sections
+  -  [Short Sample run](Sample-run)
+  -  [Sample run of all drivers](Sample-run-of-all-BEA-API-drivers)
+  -  [Description of a full return](Full-request-result-(verbose-option)) 
+  -  [Sample run of NIPA Vintage](NIPA-Vintage)
+  -  [Setting up](Setting-up-Datapungibea)
+  -  [Testing the package](Running-Tests-(Optional)) 
 
-After setting the package up (see **Setting Up** section, the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location), you can run the following:
+## Sample run
+
+First, [set the package up](Setting-up-Datapungibea) (the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
+
+```python
+'''
+  Short datapungibea sample run
+'''
+
+import datapungibea as dpb
+
+data = dpb.data() #or data = dpb.data("API Key"), see setting up section   
+
+#Basic package description
+print(data._help)                 #overall info and basic example
+print(data)                       #the list of available databases
+print(data._docDriver('NIPA'))    #documentation of a specific databases
+
+#Query a database, return only pandas table:
+data.NIPA('T10101')                         #default freq = Q, year = All
+data.NIPA('T10101',frequency='A',year='X')  
+
+#Query a database, return all information:
+full = data.NIPA('T10101',verbose=true)  
+full['dataFrame']           #pandas table, as above
+full['request']             #full request run, see section below
+full['code']                #code snippet of a request that reproduces the query. 
+
+data._clipcode() #copy ccode to clipboard (Windows only).
+```
+
+### NIPA databases, enriched information.
+
+Datapungibea provides information on the NIPA data going beyond the BEA API.  By default, the returned pandas table will include table indentations:
 
 ```python
 import datapungibea as dpb
 
-#Step 0: follow the Setting Up section below 
+data = dpb.data()
 
-#Step 1: start a
-data = dpb.data()                 
+data.NIPA('T10101')
+data.NIPA('T10101',includeIndentations=False)
+```
 
-#else, you can either (1) pass the key directly or (2) point to the key location:
-#data = dpb.data({"key": "your key", "url": "https://apps.bea.gov/api/data/"})
-#data = dpb.data(userSettings = {"ApiKeysPath":"Path/yourFile.json", "ApiKeyLabel":"BEA""ResultFormat":"JSON"})
+There are hundreds of NIPA tables.  To get an overall picture of the data, datapungibea provides a NIPASummary table for a given date; it breaks down the data in the source of income and expenditures of six sectors (eg, Households, Private Enterprises, Government, Overall economy).
 
-#Step 2: start loading data or get help:
-print(data._help)                 #overall info on datapungibea plus an example of a request
-print(data)                       #the list of datasets datapungi can query (the 'drivers'), eg 'NIPA'
-print(data._docDriver('NIPA'))    #prints the documentation of a given driver
-
-#query an API dataset (13 drivers, see data._docDriver('driverName') for query options):
-data.NIPA('T10101')                
-data.NIPA('T10101',frequency='A',year='X',includeIndentations=False)  
-
-#to get the full information, select the verbose option of a driver:
-full = data.NIPA('T10101',verbose=true)  
-full['dataFrame']                 #the cleaned up dataframe, as above
-full['request']                   #the output of the request run, see section below
-full['code']                      #a code snippet of a request run that reproduces the query. 
-
-## To copy the requests code snippet to clipboard (Windows), run:
-data._clipcode()
-
-#to get a high level summary of all NIPA information, run:
-#NOTE: this is not an BEA API 
+```python 
 data.NIPASummary('2010','A')
 ```
 
-### Sample run of NIPA Vintage methods 
-
-Quick example (see section below for more):
+Finaly, for the NIPA database, datapungibea can also fetch vintage data:
 
 ```python
 
@@ -76,7 +93,7 @@ data = dpb.data()
 
 data.NIPAVintageTables()   #list the url of the vintage datasets
 
-#T10101 Annual and Quarterly data of the last dataseet released before or on the given date.
+#T10101 Annual and Quarterly data of the first dataseet released before or on the given date.
 data.NIPAVintage('T10101',Title='Section 1',releaseDate='2018-01-22') 
 
 #tables may change name over time; so, NIPAVintage query a substring
@@ -122,7 +139,7 @@ data.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL')
 data.IntlServTrade('ALL','ALL','ALL','AllCountries','All')  
 ```
 
-## Request result (verbose = True option) 
+## Full request result (verbose option) 
 
 When the verbose option is selected, eg:
 
