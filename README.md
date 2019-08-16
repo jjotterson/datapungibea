@@ -275,7 +275,7 @@ data = dpb.data(userSettings = userSettings)
 data.NIPA('T10101')
 ```
 
-Or, save the path to your BEA API key on the package's user settings:
+Or, save the path to your BEA API key on the package's user settings (only need to run the utils once, datapungibea will remember it in future runs):
 
 
 ```python
