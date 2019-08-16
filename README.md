@@ -26,16 +26,16 @@ install code: pip install datapungibea
       * the validity of the provided requests code to be placed in a user's script. 
 
 ## Sections
-  -  [Short Sample run](Sample-run)
-  -  [Sample run of all drivers](Sample-run-of-all-BEA-API-drivers)
-  -  [Description of a full return](Full-request-result-(verbose-option)) 
-  -  [Sample run of NIPA Vintage](NIPA-Vintage)
-  -  [Setting up](Setting-up-Datapungibea)
-  -  [Testing the package](Running-Tests-(Optional)) 
+  -  [Short Sample run](##Sample-run)
+  -  [Sample run of all drivers](##Sample-run-of-all-BEA-API-drivers)
+  -  [Description of a full return](##Full-request-result-(verbose-option)) 
+  -  [NIPA Vintage](##NIPA-Vintage)
+  -  [Setting up](##Setting-up-Datapungibea)
+  -  [Testing the package](##Running-Tests-(Optional)) 
 
 ## Sample run
 
-First, [set the package up](Setting-up-Datapungibea) (the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
+First, [set the package up](##Setting-up-Datapungibea) (the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
 
 ```python
 '''
