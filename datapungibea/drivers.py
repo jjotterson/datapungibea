@@ -241,6 +241,11 @@ class getNIPA():
             df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]
             df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
             df_output = self._includeIndentations(df_output,query['params']['TABLENAME'],includeIndentations)
+            df_output.meta = ''
+            try:
+                df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            except:
+                pass            
             output = {'dataFrame':df_output,'metadata':meta}
                         
             #update the code string:
@@ -336,7 +341,11 @@ class getGetParameterList():
         else:
             self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Parameter'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -406,7 +415,11 @@ class getGetParameterValues():
         else:
             self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['ParamValue'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -514,7 +527,11 @@ class getMNE():
         else:
             self._cleanCode = "pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
         
         if outputFormat == "tablePretty":
@@ -526,7 +543,11 @@ class getMNE():
             
             df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]
             df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first')
-            
+            df_output.meta = ''
+            try:
+                df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            except:
+                pass                
             output = {'dataFrame':df_output,'metadata':meta}
             
             #update the code string:
@@ -601,7 +622,11 @@ class getFixedAssets():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -692,7 +717,11 @@ class getITA():
                 except:
                     self._cleanCode = "df_output = pd.DataFrame([])"
                     df_output = pd.DataFrame([])
-                  
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass           
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -768,7 +797,11 @@ class getIIP():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -844,7 +877,11 @@ class getGDPbyIndustry():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -942,7 +979,11 @@ class getInputOutput():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -1018,7 +1059,11 @@ class getUnderlyingGDPbyIndustry():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass     
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -1097,7 +1142,11 @@ class getIntlServTrade():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass    
         output = {'dataFrame':df_output}
                     
         return(output)
@@ -1173,7 +1222,11 @@ class getRegional():
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
-         
+        df_output.meta = ''
+        try:
+            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+        except:
+            pass             
         output = {'dataFrame':df_output}
                     
         return(output)

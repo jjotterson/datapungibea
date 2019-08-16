@@ -54,7 +54,10 @@ print(data._docDriver('NIPA'))    #documentation of a specific databases
 
 #Query a database, return only pandas table:
 data.NIPA('T10101')                         #default freq = Q, year = All
+data.NIPA('T10101').meta                    #meta lists units, rev date, etc
 data.NIPA('T10101',frequency='A',year='X')  
+data.NIPA('T71800',frequency='A')           #if a query does not work, try other frequencies
+
 
 #Query a database, return all information:
 full = data.NIPA('T10101',verbose=true)  
@@ -121,6 +124,20 @@ data.NIPAVintage(Title='Section 1',quarter='Q1',year='2009',vintage='Third')
 
 ### Sample run of all BEA API drivers
 
+Notice that all panda tables include a "meta" section listing units, short table description, revision date etc.  For more detailed metadata, use the verbose = True option (see, [Description of a full return](#Full-request-result)).  
+
+```python
+import datapungibea as dpb
+
+data = dpb.data()
+
+v = data.NIPA('T10101')
+v.meta
+```
+
+Also, "meta" is not a pandas official attribute; slight changes to the dataframe (say, merging, or multiplying it by a number) will remove meta.
+
+
 ```python
 
 import datapungibea as dpb
@@ -166,6 +183,7 @@ A query returns a dictionary with three entries: dataFrame, request and code.
   - dataFrame is a cleaned up version of the request result in pandas dataframe format
   - request is the full output of a request query (see the request python package)
   - code is a request code snippet to get the data that can be placed in a script 
+  - (and "metadata" in some cases - listing detailed metadata)
 
 The most intricate entry is the request one.  It is an object containing the status of the query:
 
