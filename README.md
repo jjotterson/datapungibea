@@ -36,7 +36,7 @@ install code: pip install datapungibea
 
 ## Sample runs
 
-First, [set the package up](##Setting-up-Datapungibea) (get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
+First, [set the package up](#Setting-up-Datapungibea) (get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
 
 ```python
 '''
@@ -85,11 +85,11 @@ data.NIPA('T10101')
 
 API data  | Enriched data 
 --------- | ------------- 
-![](./docs/beaQuery.png) | ![](./docs/enrichindentQuery.png)    
+![](./docs/beaQuery.png) | ![](./docs/enrichIndentQuery.png)    
 
  
 #### (2) NIPA Summary tables
-There are hundreds of NIPA tables.  To get an overall picture of the data, datapungibea provides a NIPASummary table for a given date; it sums up the data in the source of income and expenditures of six sectors (Domestic Income and Product Account, Private Enterprises, Personal Incomes, Government, Foreign Transactions, and Domestic Capital Account). See this [NIPA Summary Example](http://www.econbrief.com/app_eb/boards/boardMacroSNATable).
+There are hundreds of NIPA tables.  To get an overall picture of the data, datapungibea provides a NIPASummary table for a given date; it sums up the data in the source of income and expenditures of six sectors (Domestic Income and Product Account, Private Enterprises, Personal Incomes, Government, Foreign Transactions, and Domestic Capital Account). For an example of such table, check [NIPA Summary Tables](http://www.econbrief.com/app_eb/boards/boardMacroSNATable).
 
 ```python 
 import datapungibea as dpb
