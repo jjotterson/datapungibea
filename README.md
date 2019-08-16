@@ -26,16 +26,17 @@ install code: pip install datapungibea
       * the validity of the provided requests code to be placed in a user's script. 
 
 ## Sections
-  -  [Short Sample run](##Sample-run)
-  -  [Sample run of all drivers](##Sample-run-of-all-BEA-API-drivers)
-  -  [Description of a full return](##Full-request-result-(verbose-option)) 
-  -  [NIPA Vintage](##NIPA-Vintage)
-  -  [Setting up](##Setting-up-Datapungibea)
-  -  [Testing the package](##Running-Tests-(Optional)) 
+  -  [Short sample runs](#Sample-runs)
+  -  [Short sample runs of NIPA drivers](#Sample-runs-of-NIPA-drivers)
+  -  [Short sample runs of all drivers](#Sample-run-of-all-BEA-API-drivers)
+  -  [Description of a full return](#Full-request-result) 
+  -  [NIPA Vintage, long description](#NIPA-Vintage)
+  -  [Setting up datapungibea](#Setting-up-Datapungibea)
+  -  [Testing the package](#Running-Tests) 
 
-## Sample run
+## Sample runs
 
-First, [set the package up](##Setting-up-Datapungibea) (the main step is to get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
+First, [set the package up](##Setting-up-Datapungibea) (get an API key from BEA, save it somewhere and let datapungibea know its location).  After setting datapungibea up, you can run the following:
 
 ```python
 '''
@@ -64,10 +65,14 @@ full['code']                #code snippet of a request that reproduces the query
 data._clipcode() #copy ccode to clipboard (Windows only).
 ```
 
-### NIPA databases, enriched information.
+### Sample runs of NIPA drivers
 
-Datapungibea provides information on the NIPA data going beyond the BEA API.  By default, the returned pandas table will include table indentations:
+Datapungibea provides information on the NIPA data going beyond the API.  It can provide; (1) table indentations (the graph structure of the database), (2) summary of NIPA datasets, and (3) fetch vintage data.  
 
+#### (1) NIPA indentations
+
+A query of the NIPA API will not include the graph structure (ie. if a given line is a subcomponent of a previous line).  Datapungibea can 
+enrich the dataset to include this information (the default option is to always enrich the dataset)
 ```python
 import datapungibea as dpb
 
@@ -77,17 +82,23 @@ data.NIPA('T10101',includeIndentations=False)
 data.NIPA('T10101')
 ```
 
-![](./docs/beaQuery.png) 
-![](./docs/enrichindentQuery.png)    
- 
 
-There are hundreds of NIPA tables.  To get an overall picture of the data, datapungibea provides a NIPASummary table for a given date; it breaks down the data in the source of income and expenditures of six sectors (eg, Households, Private Enterprises, Government, Overall economy).
+API data  | Enriched data 
+--------- | ------------- 
+![](./docs/beaQuery.png) | ![](./docs/enrichindentQuery.png)    
+
+ 
+#### (2) NIPA Summary tables
+There are hundreds of NIPA tables.  To get an overall picture of the data, datapungibea provides a NIPASummary table for a given date; it sums up the data in the source of income and expenditures of six sectors (Domestic Income and Product Account, Private Enterprises, Personal Incomes, Government, Foreign Transactions, and Domestic Capital Account). See this [NIPA Summary Example](http://www.econbrief.com/app_eb/boards/boardMacroSNATable).
 
 ```python 
+import datapungibea as dpb
+
+data = dpb.data()
 data.NIPASummary('2010','A') 
 ```
-
-Finaly, for the NIPA database, datapungibea can also fetch vintage data:
+#### (3) NIPA Vintage data
+Finaly, for the NIPA database, datapungibea can also fetch vintage data (this is a quick run sample, see Section [NIPA Vintage](#NIPA-Vintage) for more):
 
 ```python
 
@@ -143,7 +154,7 @@ data.UnderlyingGDPbyIndustry('ALL','ALL','A','ALL')
 data.IntlServTrade('ALL','ALL','ALL','AllCountries','All')  
 ```
 
-## Full request result (verbose option) 
+## Full request result 
 
 When the verbose option is selected, eg:
 
@@ -293,13 +304,13 @@ data.NIPA('T10101')
 
 #### (Option 3) Save the key in an environment variable
 
-Finally, you can also save the key as an environment variable (eg, windows shell and in anaconda/conda).   
+Finally, you can also save the key as an environment variable (eg, windows shell and in anaconda/conda virtual environment).   
 
 For example, on a command prompt (cmd, powershell etc, or in a virtual environment)
 
 ```
 > set BEA=APIKey 
-````
+```
 
 Then start python and run:
 
@@ -312,13 +323,13 @@ data = dpb.data()
 data.NIPA('T10101')
 ```
 
-## Running Tests (Optional) 
+## Running Tests
 
 Datapungibea comes with a family of tests to check its access to the BEA API and the quality of the retrieved data.  They check if:
 
 1. the connection to BEA is working,
 2. the data cleaning step worked,
-3. the code snippet is executing,
+3. the code snippet is executing (**NOTE: this is only testing the case when keys are stored in a json file**),
 4. the code snippet gets the same data as the datapungi query.
 
 Other tests check if BEA data has being updated of if new data is available.  Most of these tests are run every night on python 3.5, 3.6 and 3.7 (see the code build tag on the top of the document).  However, 
