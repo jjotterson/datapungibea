@@ -14,7 +14,7 @@ install code: pip install datapungibea
 
   Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  Its main purpose is to connect to BEA's Application Program Interface (API); overall it:
   - provides a quick access to the BEA datasets **and** the python's Requests code snippet used to retrieve the data (which can be placed on a script to automate a run indenpendent from datapungibea).
-  - returns the whole request output (which includes metadata), but it also provides a cleaned up pandas table of it.
+  - returns the whole request output (with detailed metadata), **and** a cleaned up pandas table of it (with some meta).
   - goes beyond the data provided by the BEA's API to include: 
       * NIPA Vintage
       * NIPA graph structure (indentations); and 
