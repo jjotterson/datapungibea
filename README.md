@@ -6,7 +6,7 @@ TODO: add explanation of the request part of the vintage.
 [![build Status](https://travis-ci.com/jjotterson/datapungibea.svg?branch=master)](https://travis-ci.com/jjotterson/datapungibea)
 [![downloads](https://img.shields.io/pypi/dm/datapungibea.svg)](https://pypi.org/project/datapungibea/)
 
-<!--[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/datapungibea/)-->
+[![image](https://img.shields.io/pypi/pyversions/datapungibea.svg)](https://pypi.org/project/datapungibea/)
 
 install code: pip install datapungibea 
 
