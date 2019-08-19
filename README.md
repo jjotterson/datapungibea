@@ -13,17 +13,17 @@ install code: pip install datapungibea
 <h1> Datapungibea  </h1>
 
   Datapungibea is a python package that provides a simplified way to extract data from the U.S. Bureau of Economics Analysis (BEA).  Its main purpose is to connect to BEA's Application Program Interface (API); overall it:
-  - provides a quick access to the BEA datasets **and** the python's Requests code snippet used to retrieve the data (which can be placed on a script to automate a run indenpendent from datapungibea).
+  - provides a quick access to the BEA datasets **and** the python's Requests code snippet used to retrieve the data (which can be placed on a script to automate a run that is indenpendent from datapungibea).
   - returns the whole request output (with detailed metadata) **and** a cleaned up pandas table of it (with some meta).
   - goes beyond the data provided by the BEA's API to include: 
-      * NIPA Vintage
+      * NIPA Vintage data
       * NIPA graph structure (indentations); and 
       * NIPA summary tables.      
-  - can read saved user API keys (in json/yaml files or environment variables (default)) to avoid having a copy of the key on a script.
+  - can read a saved API key (in json/yaml files or environment variables (default)) to avoid having a copy of it on a script.
   - can automatically test: 
       * the connectivity to all BEA datasets, 
       * the quality of the cleaned up data, and 
-      * the validity of the provided requests code to be placed in a user's script. 
+      * if the provided requests code snippet returns the correct result. 
 
 ## Sections
   -  [Short sample runs](#Sample-runs)
@@ -207,7 +207,7 @@ is again a dictionary this time with the following entries:
   
   - Statistic: the name of the table (eg, NIPA)
   - UTCProductionTime: the time when you downloaded the data
-  - Dimensions: the dimensions of the entries of the dataset
+  - Dimensions: the dimensions (unit of measurement) of each entry of the dataset
   - Data: the dataset 
   - Notes: A quick description of the dataset with the date it was last revised.  
 
@@ -335,10 +335,16 @@ Then start python and run:
 ```python
 import datapungibea as dpb
 
-dpb.utils.setUserSettings('env')
-
 data = dpb.data()
 data.NIPA('T10101')
+```
+
+Notice: searching for an environrment variable named 'BEA' is the deafault option.  If changed to some other option and want to return to the default, run:
+
+```python
+import datapungibea as dpb
+
+dpb.utils.setUserSettings('env')  
 ```
 
 If you want to save the url of the BEA API in the environment, call it BEA_url. Datapungibea will use the provided http address instead of the default 
@@ -361,8 +367,8 @@ Datapungibea comes with a family of tests to check its access to the BEA API and
 
 1. the connection to BEA is working,
 2. the data cleaning step worked,
-3. the code snippet is executing (**NOTE: this is only testing the case when keys are stored in a json file**),
-4. the code snippet gets the same data as the datapungi query.
+3. the code snippet is executing (**NOTE: currently only working when keys are stored in a json file**),
+4. the code snippet produces the same data as the datapungi query.
 
 Other tests check if BEA data has being updated of if new data is available.  Most of these tests are run every night on python 3.5, 3.6 and 3.7 (see the code build tag on the top of the document).  However, 
 these test runs are not currently checking the code snippet quality to check if its output is the same as the driver's. To run the tests, including the one 
