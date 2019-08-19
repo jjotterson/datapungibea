@@ -88,7 +88,7 @@ data.NIPA('T10101')
 
 API data  | Enriched data 
 --------- | ------------- 
-![](./docs/beaQuery.png) | ![](./docs/enrichIndentQuery.png)    
+![](https://github.com/jjotterson/datapungibea/blob/master/docs/beaQuery.png) | ![](https://github.com/jjotterson/datapungibea/blob/master/docs/enrichIndentQuery.png)    
 
  
 #### (2) NIPA Summary tables
