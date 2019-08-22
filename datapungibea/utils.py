@@ -34,7 +34,7 @@ def getConnectionParameters(connectionParameters = {}, userSettings = {}):
     try:
         storingMethod = userSettings['ApiKeysPath'].split('.')[-1]
         labelName = userSettings['ApiKeyLabel']
-        if storingMethod == 'json':
+        if storingMethod == 'json': 
             with open(userSettings['ApiKeysPath']) as jsonFile:
                  connectionParameters = (json.load(jsonFile))[labelName]
         elif storingMethod == 'yaml':
@@ -82,6 +82,15 @@ def getUserSettings(userSettings = {}):
     except:
         print('.utils.py: Could not open the userSettings: \n ./config/userSettings.json \n returning empty dictionary')
         return({})
+
+def getPkgConfig():
+    '''
+      Reads the PkgConfig - eg the default BEA url
+    '''
+    pkgcfgPath = getResourcePath("/config/pkgConfig.yaml")
+    with open(pkgcfgPath, 'r') as stream:
+        pkgCfg = yaml.safe_load(stream)    
+    return(pkgCfg)
 
 def setPkgConfig(newUrl):
     '''
