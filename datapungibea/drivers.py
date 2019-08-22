@@ -27,19 +27,47 @@ def _getBaseCode(codeEntries):
     '''
       The base format of a code that can be used to replicate a driver using Requests directly.
     '''
-    code = '''
+    userSettings = utils.getUserSettings()
+    pkgConfig    = utils.getPkgConfig()
+    storagePref  = userSettings['ApiKeysPath'].split('.')[-1]
+    
+    passToCode = {'ApiKeyLabel':userSettings["ApiKeyLabel"], "url":pkgConfig['url'], 'ApiKeysPath':userSettings['ApiKeysPath']}
+    if storagePref == 'json':
+        code = '''
 import requests
 import json    
 import pandas as pd
 
-#(1) get user API key (not advised but can just write key and url in the file)
-#    file should contain: {{"BEA":{{"key":"YOUR KEY","url": "{}" }}}}
+# json file should contain: {{"BEA":{{"key":"YOUR KEY","url": "{url}" }}}}
 
-apiKeysFile = "{}"
+apiKeysFile = '{ApiKeysPath}'
 with open(apiKeysFile) as jsonFile:
    apiInfo = json.load(jsonFile)
-   url,key = apiInfo["BEA"]["url"], apiInfo["BEA"]["key"]    
-     '''.format(*codeEntries)
+   url,key = apiInfo['{ApiKeyLabel}']['url'], apiInfo['{ApiKeyLabel}']['key']    
+     '''.format(**passToCode)
+    
+    if storagePref == 'env':
+        code = '''
+import requests
+import os 
+import pandas as pd
+
+url = "{url}"
+key = os.getenv("{ApiKeyLabel}") 
+     '''.format(**passToCode)
+    
+    if storagePref == 'yaml':
+        code = '''
+import requests
+import yaml 
+import pandas as pd
+
+apiKeysFile = '{ApiKeysPath}'
+with open(apiKeysFile, 'r') as stream:
+    apiInfo= yaml.safe_load(stream)
+    url,key = apiInfo['{ApiKeyLabel}']['url'], apiInfo['{ApiKeyLabel}']['key']
+     '''.format(**passToCode)
+
     return(code)
 
 def _getCode(query,userSettings={},pandasCode=""):
@@ -253,10 +281,10 @@ class getNIPA():
             self._cleanCode = self._cleanCode + "df_output['DataValue'] = pd.to_numeric(df_output['DataValue'].apply(lambda x: x.replace(',','')))  \n"  
             self._cleanCode = self._cleanCode + "df_output = df_output[['LineNumber', 'SeriesCode', 'LineDescription', 'DataValue', 'TimePeriod']]  \n"   
             self._cleanCode = self._cleanCode + "df_output = pd.pivot_table(df_output, index=['LineNumber', 'SeriesCode', 'LineDescription'], columns='TimePeriod', values='DataValue', aggfunc='first') \n" 
-            if includeIndentations:
-                self._cleanCode = self._cleanCode + '\n#Including indentations:'
-                self._cleanCode = self._cleanCode + '\nimport datapungibea as dpb \ndata = dpb.data() \ndf_output = data.getNIPA._includeIndentations(df_output,"'+query['params']['TABLENAME']+'")\n'
-                self._cleanCode = self._cleanCode + '#can get all indentations running:    from datapungibea.config.CFGindentations import indentations as cfgIndentations \n'
+            #if includeIndentations:
+                #self._cleanCode = self._cleanCode + '\n#Including indentations:'
+                #self._cleanCode = self._cleanCode + '\nimport datapungibea as dpb \ndata = dpb.data() \ndf_output = data.getNIPA._includeIndentations(df_output,"'+query['params']['TABLENAME']+'")\n'
+                #self._cleanCode = self._cleanCode + '#can get all indentations running:    from datapungibea.config.CFGindentations import indentations as cfgIndentations \n'
         return(output)
     
     def _includeIndentations(self,df_output,tableName,includeIndentations=True): #tableName = query['params']['TABLENAME']
@@ -1599,6 +1627,10 @@ if __name__ == '__main__':
     #print(v.NIPASummary(2018,'Q'))
 
     #table indentations
+    print(utils.getUserSettings())
+    print(utils.getPkgConfig())
     v = getNIPA()
     #print(v.NIPA('T11000',includeIndentations=False))
-    print(v.NIPA('T11000'))
+    w= v.NIPA('T11000',verbose=True)
+    print(w['code'])
+    #print(w)
