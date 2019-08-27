@@ -1,4 +1,4 @@
-"""Connects to Bureau of Economic Analysis (BEA) API and enriches data output; get vintage data"""
+"""Connect to Bureau of Economic Analysis (BEA) API, enrich data output and get vintage data"""
 import pandas
 import requests
 
