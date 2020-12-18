@@ -901,7 +901,7 @@ class getGDPbyIndustry():
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])
         else:
             self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
