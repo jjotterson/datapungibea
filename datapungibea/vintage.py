@@ -140,9 +140,10 @@ def getNIPADataFromListofLinks( tableOfLinks , asJson = False):
         link = row['excelLink']
         if asJson == False:
             try:
-                row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None)
+                row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None, engine='openpyxl')
             except:
                 print("cannot read: " + link)
+                raise
         else:
             try:
                 row['data'] = pd.read_excel(link.replace(" ","%20"), sheet_name=None).to_dict(orient='records')
