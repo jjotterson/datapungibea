@@ -900,14 +900,14 @@ class getGDPbyIndustry():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])"
             df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])
         else:
-            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI'][0]['Results']['Data'])"
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])  #TODO: check this works
         df_output.meta = ''
         try:
-            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            df_output.meta = retrivedData.json()['BEAAPI']['Results'][0]['Notes']
         except:
             pass             
         output = {'dataFrame':df_output}
@@ -1082,14 +1082,14 @@ class getUnderlyingGDPbyIndustry():
     
     def _cleanOutput(self,query,retrivedData):
         if query['params']['ResultFormat'] == 'JSON':
-            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])"
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])
         else:
-            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])"
-            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results']['Data'])  #TODO: check this works
+            self._cleanCode = "df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])"
+            df_output =  pd.DataFrame(retrivedData.json()['BEAAPI']['Results'][0]['Data'])  #TODO: check this works
         df_output.meta = ''
         try:
-            df_output.meta = retrivedData.json()['BEAAPI']['Results']['Notes']
+            df_output.meta = retrivedData.json()['BEAAPI']['Results'][0]['Notes']
         except:
             pass     
         output = {'dataFrame':df_output}
